@@ -30,6 +30,10 @@ import 'react-perfect-scrollbar/dist/css/styles.css'
 // ** Global css styles
 import '../../styles/globals.css'
 
+import 'primereact/resources/themes/lara-light-indigo/theme.css'
+
+import { PrimeReactProvider } from 'primereact/api'
+
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
   Component: NextPage
@@ -60,20 +64,22 @@ const App = (props: ExtendedAppProps) => {
 
   return (
     <CacheProvider value={emotionCache}>
-      <Head>
-        <title>{`${themeConfig.templateName}`}</title>
-        <meta name='description' content={`${themeConfig.templateName}`} />
-        <meta name='keywords' content='Material Design, MUI, Admin Template, React Admin Template' />
-        <meta name='viewport' content='initial-scale=1, width=device-width' />
-      </Head>
+      <PrimeReactProvider value={{ unstyled: true }}>
+        <Head>
+          <title>{`${themeConfig.templateName}`}</title>
+          <meta name='description' content={`${themeConfig.templateName}`} />
+          <meta name='keywords' content='Material Design, MUI, Admin Template, React Admin Template' />
+          <meta name='viewport' content='initial-scale=1, width=device-width' />
+        </Head>
 
-      <SettingsProvider>
-        <SettingsConsumer>
-          {({ settings }) => {
-            return <ThemeComponent settings={settings}>{getLayout(<Component {...pageProps} />)}</ThemeComponent>
-          }}
-        </SettingsConsumer>
-      </SettingsProvider>
+        <SettingsProvider>
+          <SettingsConsumer>
+            {({ settings }) => {
+              return <ThemeComponent settings={settings}>{getLayout(<Component {...pageProps} />)}</ThemeComponent>
+            }}
+          </SettingsConsumer>
+        </SettingsProvider>
+      </PrimeReactProvider>
     </CacheProvider>
   )
 }

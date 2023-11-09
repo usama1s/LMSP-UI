@@ -11,6 +11,7 @@ import CreditCardOutline from 'mdi-material-ui/CreditCardOutline'
 import AccountPlusOutline from 'mdi-material-ui/AccountPlusOutline'
 import AlertCircleOutline from 'mdi-material-ui/AlertCircleOutline'
 import GoogleCirclesExtended from 'mdi-material-ui/GoogleCirclesExtended'
+import AddUser from 'mdi-material-ui/Account'
 
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
@@ -18,15 +19,20 @@ import { VerticalNavItemsType } from 'src/@core/layouts/types'
 const navigation = (): VerticalNavItemsType => {
   return [
     {
+      title: 'Add Account',
+      icon: AddUser,
+      path: '/'
+    },
+    {
       title: 'Article Inventory',
       icon: Article,
       path: '/article-inventory'
     },
-    {
-      title: 'Dashboard',
-      icon: HomeOutline,
-      path: '/'
-    },
+    // {
+    //   title: 'Dashboard',
+    //   icon: HomeOutline,
+    //   path: '/'
+    // },
     {
       title: 'Account Settings',
       icon: AccountCogOutline,

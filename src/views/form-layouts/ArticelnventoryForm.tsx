@@ -35,6 +35,26 @@ const ArticleInventoryForm = () => {
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/placeholder.png')
   const [videoFile, setVideoFile] = useState<File | null>(null)
   const [infoFile, setinfoFile] = useState<File | null>(null)
+  const [imageFiles, setImageFiles] = useState<File[]>([])
+
+  const onImageChange = (event: ChangeEvent) => {
+    const { files } = event.target as HTMLInputElement
+
+    if (files && files.length !== 0) {
+      // Convert FileList to an array and update state
+      const newImageFiles = Array.from(files)
+      setImageFiles(prevFiles => [...prevFiles, ...newImageFiles])
+
+      // Reset the input to allow selecting the same file again
+      ;(event.target as HTMLInputElement).value = ''
+    }
+  }
+
+  const removeImage = (index: number) => {
+    const newImageFiles = [...imageFiles]
+    newImageFiles.splice(index, 1)
+    setImageFiles(newImageFiles)
+  }
 
   const ImgStyled = styled('img')(({ theme }) => ({
     width: 180,
@@ -222,7 +242,7 @@ const ArticleInventoryForm = () => {
                 </Box>
               </Box>
 
-              <Box sx={{ display: 'flex', alignItems: 'center' }} mt={3}>
+              {/* <Box sx={{ display: 'flex', alignItems: 'center' }} mt={3}>
                 <ImgStyled src={imgSrc} alt='Profile Pic' />
                 <Box>
                   <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
@@ -245,6 +265,52 @@ const ArticleInventoryForm = () => {
                   <Typography variant='body2' sx={{ marginTop: 5 }}>
                     Allowed PNG or JPEG.
                   </Typography>
+                </Box>
+              </Box> */}
+              <Box sx={{ display: 'flex', alignItems: 'center' }} mt={6}>
+                <Box>
+                  <ButtonStyled component='label' variant='contained' htmlFor='article-inventory-upload-image'>
+                    Upload Image
+                    <input
+                      hidden
+                      type='file'
+                      onChange={onImageChange}
+                      accept='image/png, image/jpeg'
+                      id='article-inventory-upload-image'
+                      multiple
+                    />
+                  </ButtonStyled>
+                  <ResetButtonStyled color='error' variant='outlined' onClick={() => setImageFiles([])}>
+                    Reset
+                  </ResetButtonStyled>
+                  <Typography variant='body2' sx={{ marginTop: 5 }}>
+                    Allowed PNG or JPEG.
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', marginLeft: 3 }}>
+                  {imageFiles.map((file, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexDirection: 'column',
+                        marginRight: 2
+                      }}
+                    >
+                      <ImgStyled src={URL.createObjectURL(file)} alt={`Image ${index + 1}`} />
+                      <Button
+                        size='small'
+                        color='error'
+                        variant='outlined'
+                        onClick={() => removeImage(index)}
+                        sx={{ marginTop: 1 }}
+                      >
+                        Remove
+                      </Button>
+                    </Box>
+                  ))}
                 </Box>
               </Box>
             </Grid>
