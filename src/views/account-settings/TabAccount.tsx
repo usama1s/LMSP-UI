@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ElementType, ChangeEvent, SyntheticEvent } from 'react'
+import { useState, ElementType, ChangeEvent, SyntheticEvent, useEffect } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -47,8 +47,9 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
 
 const TabAccount = () => {
   // ** State
-  const [openAlert, setOpenAlert] = useState<boolean>(true)
+  const [openAlert, setOpenAlert] = useState<boolean>(false)
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
+  const [user, setUser] = useState(null)
 
   const onChange = (file: ChangeEvent) => {
     const reader = new FileReader()
@@ -60,6 +61,17 @@ const TabAccount = () => {
     }
   }
 
+  useEffect(() => {
+    var loggedInUser = localStorage.getItem('user')
+    if (loggedInUser) {
+      var parsedUser = JSON.parse(loggedInUser)
+
+      setUser(parsedUser)
+    }
+  }, [])
+  if (!user) {
+    return null
+  }
   return (
     <CardContent>
       <form>
@@ -88,11 +100,17 @@ const TabAccount = () => {
             </Box>
           </Grid>
 
+          {/* <Grid item xs={12} sm={6}>
+            <TextField fullWidth label='Username' placeholder='johnDoe' defaultValue={user?.firs} />
+          </Grid> */}
           <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='Username' placeholder='johnDoe' defaultValue='johnDoe' />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='Name' placeholder='John Doe' defaultValue='John Doe' />
+            <TextField
+              fullWidth
+              label='Name'
+              placeholder='John Doe'
+              defaultValue={user?.first_name + ' ' + user?.last_name}
+              disabled
+            />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
@@ -100,13 +118,14 @@ const TabAccount = () => {
               type='email'
               label='Email'
               placeholder='johnDoe@example.com'
-              defaultValue='johnDoe@example.com'
+              defaultValue={user?.email}
+              disabled
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
               <InputLabel>Role</InputLabel>
-              <Select label='Role' defaultValue='admin'>
+              <Select label='Role' defaultValue='admin' disabled>
                 <MenuItem value='admin'>Admin</MenuItem>
                 <MenuItem value='author'>Author</MenuItem>
                 <MenuItem value='editor'>Editor</MenuItem>
@@ -116,7 +135,7 @@ const TabAccount = () => {
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
+            <FormControl fullWidth disabled>
               <InputLabel>Status</InputLabel>
               <Select label='Status' defaultValue='active'>
                 <MenuItem value='active'>Active</MenuItem>
@@ -126,7 +145,13 @@ const TabAccount = () => {
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='Company' placeholder='ABC Pvt. Ltd.' defaultValue='ABC Pvt. Ltd.' />
+            <TextField
+              fullWidth
+              label='Company'
+              placeholder='ABC Pvt. Ltd.'
+              disabled
+              defaultValue={user?.organization}
+            />
           </Grid>
 
           {openAlert ? (

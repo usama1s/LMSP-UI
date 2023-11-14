@@ -1,5 +1,5 @@
 // ** React Imports
-import { ChangeEvent, MouseEvent, ReactNode, useState } from 'react'
+import { ChangeEvent, MouseEvent, ReactNode, useEffect, useState } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
@@ -8,7 +8,6 @@ import { useRouter } from 'next/router'
 // ** MUI Components
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
 import Checkbox from '@mui/material/Checkbox'
 import TextField from '@mui/material/TextField'
 import InputLabel from '@mui/material/InputLabel'
@@ -21,12 +20,11 @@ import { styled, useTheme } from '@mui/material/styles'
 import MuiCard, { CardProps } from '@mui/material/Card'
 import InputAdornment from '@mui/material/InputAdornment'
 import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
 
 // ** Icons Imports
-import Google from 'mdi-material-ui/Google'
-import Github from 'mdi-material-ui/Github'
-import Twitter from 'mdi-material-ui/Twitter'
-import Facebook from 'mdi-material-ui/Facebook'
+
 import EyeOutline from 'mdi-material-ui/EyeOutline'
 import EyeOffOutline from 'mdi-material-ui/EyeOffOutline'
 
@@ -39,10 +37,13 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 // ** Demo Imports
 import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
 
+import useAuth from 'src/@core/utils/useAuth'
+
 interface State {
   email: string
   password: string
   showPassword: boolean
+  role: string
 }
 
 // ** Styled Components
@@ -66,11 +67,14 @@ const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ t
 const Icon = styled('img')(() => ({}))
 
 const LoginPage = () => {
+  const { customApiCall, login } = useAuth()
   // ** State
+  const [loading, setLoading] = useState<boolean | null>(null)
   const [values, setValues] = useState<State>({
     email: '',
     password: '',
-    showPassword: false
+    showPassword: false,
+    role: '1'
   })
 
   // ** Hook
@@ -89,13 +93,42 @@ const LoginPage = () => {
     event.preventDefault()
   }
 
-  const handleLoginClicked = (event: any) => {
+  useEffect(() => {
+    setLoading(true)
+    var user = localStorage.getItem('user')
+    if (user) {
+      router.push('/')
+    }
+    setLoading(false)
+  }, [])
+  const handleLoginClicked = async (event: any) => {
     event.preventDefault()
     if (!values.email && !values.password) {
       alert('Please fill all details')
     } else {
-      router.push('/')
+      try {
+        const res = await customApiCall('post', '/auth/sign-in', {
+          email: values.email,
+          password: values.password,
+          role: parseInt(values.role)
+        }).then(r => {
+          console.log(r?.user[0])
+          localStorage.setItem('user', JSON.stringify(r?.user[0]))
+          setValues({
+            email: '',
+            password: '',
+            showPassword: false,
+            role: '1'
+          })
+          router.push('/')
+        })
+      } catch (e) {
+        alert(e?.message)
+      }
     }
+  }
+  if (loading != false) {
+    return null
   }
   return (
     <Box className='content-center'>
@@ -213,53 +246,31 @@ const LoginPage = () => {
                 }
               />
             </FormControl>
-            <Box
+            <FormControl fullWidth sx={{ mt: 4, mb: 4 }}>
+              <InputLabel>User Type</InputLabel>
+              <Select
+                label='Admin Type'
+                defaultValue='1'
+                onChange={e => setValues({ ...values, role: e.target.value as string })}
+              >
+                <MenuItem value='1'>Admin</MenuItem>
+                <MenuItem value='2'>Instructor</MenuItem>
+                <MenuItem value='3'>Student</MenuItem>
+              </Select>
+            </FormControl>
+            {/* <Box
               sx={{ mb: 4, display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}
             >
-              <FormControlLabel control={<Checkbox />} label='Remember Me' />
-              <Link passHref href='/'>
-                <LinkStyled onClick={e => e.preventDefault()}>Forgot Password?</LinkStyled>
-              </Link>
-            </Box>
+              <FormControlLabel
+                control={<Checkbox />}
+                label='I am a student'
+                value={values.isStudent}
+                onClick={() => setValues({ ...values, isStudent: !values.isStudent })}
+              />
+            </Box> */}
             <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }} onClick={handleLoginClicked}>
               Login
             </Button>
-
-            {/* <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <Typography variant='body2' sx={{ marginRight: 2 }}>
-                New on our platform?
-              </Typography>
-              <Typography variant='body2'>
-                <Link passHref href='/pages/register'>
-                  <LinkStyled>Create an account</LinkStyled>
-                </Link>
-              </Typography>
-            </Box>
-            <Divider sx={{ my: 5 }}>or</Divider>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Link href='/' passHref>
-                <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
-                  <Facebook sx={{ color: '#497ce2' }} />
-                </IconButton>
-              </Link>
-              <Link href='/' passHref>
-                <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
-                  <Twitter sx={{ color: '#1da1f2' }} />
-                </IconButton>
-              </Link>
-              <Link href='/' passHref>
-                <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
-                  <Github
-                    sx={{ color: theme => (theme.palette.mode === 'light' ? '#272727' : theme.palette.grey[300]) }}
-                  />
-                </IconButton>
-              </Link>
-              <Link href='/' passHref>
-                <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
-                  <Google sx={{ color: '#db4437' }} />
-                </IconButton>
-              </Link>
-            </Box> */}
           </form>
         </CardContent>
       </Card>

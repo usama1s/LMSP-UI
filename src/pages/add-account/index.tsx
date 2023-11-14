@@ -19,12 +19,12 @@ import PlusIcon from 'mdi-material-ui/Plus'
 import ViewIcon from 'mdi-material-ui/ViewList'
 
 // ** Components Imports
-import ArticleInventoryTable from 'src/views/tables/ArticleInventoryTable'
 import AddAccountForm from 'src/views/form-layouts/AddAccountForm'
+import AllAccountsTable from 'src/views/tables/AllAccountsTable'
 
 const AddAccount = () => {
   // ** State
-  const [value, setValue] = useState<string>('addAccount')
+  const [value, setValue] = useState<string>('allAccounts')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -55,20 +55,20 @@ const AddAccount = () => {
           sx={{ borderBottom: theme => `1px solid ${theme.palette.divider}` }}
         >
           <Tab
-            value='addAccount'
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <PlusIcon />
-                <TabName>Add Account</TabName>
-              </Box>
-            }
-          />
-          <Tab
             value='allAccounts'
             label={
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <ViewIcon />
                 <TabName>All Accounts</TabName>
+              </Box>
+            }
+          />
+          <Tab
+            value='addAccount'
+            label={
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <PlusIcon />
+                <TabName>Add Account</TabName>
               </Box>
             }
           />
@@ -84,7 +84,7 @@ const AddAccount = () => {
           </DatePickerWrapper>
         </TabPanel>
         <TabPanel sx={{ p: 0 }} value='allAccounts'>
-          <ArticleInventoryTable />
+          <AllAccountsTable />
         </TabPanel>
       </TabContext>
     </Card>

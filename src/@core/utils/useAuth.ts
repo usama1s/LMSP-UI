@@ -7,9 +7,10 @@ import { User } from './Types/User'
 interface AuthHook {
   user: User | null
   loading: boolean
-  login: (credentials: { username: string; password: string }) => void
+  login: (credentials: { username: string; password: string; role: number }) => void
   logout: () => void
   customApiCall: <T>(method: string, endpoint: string, data?: any) => Promise<T>
+  getProfileImage: <T>(filename: string) => Promise<void>
 }
 
 const useAuth = (): AuthHook => {
@@ -36,15 +37,29 @@ const useAuth = (): AuthHook => {
     checkAuth()
   }, [])
 
-  const login = async (credentials: { username: string; password: string }) => {
+  const login = async (credentials: { username: string; password: string; role: number }) => {
     try {
       const response = await api.post('/auth/login', credentials)
-      const { user, token } = response.data
+      const { user } = response.data
       localStorage.setItem('user', JSON.stringify(user))
-      localStorage.setItem('token', token)
+      //   localStorage.setItem('token', token)
       setUser(user)
     } catch (error) {
       console.error('Login failed:', error)
+    }
+  }
+
+  const getProfileImage = async (filename: string) => {
+    try {
+      const isMac = typeof window !== 'undefined' ? navigator.platform.toUpperCase().indexOf('MAC') >= 0 : false
+      const lastIndex = !isMac ? filename.lastIndexOf('\\') : filename.lastIndexOf('/')
+
+      const result = filename.substring(lastIndex + 1)
+      const response = await api.get(`/shared/uploads/${result}`)
+
+      return response?.data
+    } catch (error) {
+      console.error('Failed to fetch image:', error)
     }
   }
 
@@ -72,7 +87,7 @@ const useAuth = (): AuthHook => {
         headers: Record<string, string>
       } = {
         headers: {
-          Authorization: `Bearer ${storedToken}`
+          //   Authorization: `Bearer ${storedToken}`
         }
       }
 
@@ -97,7 +112,7 @@ const useAuth = (): AuthHook => {
     }
   }
 
-  return { user, loading, login, logout, customApiCall }
+  return { user, loading, login, logout, customApiCall, getProfileImage }
 }
 
 export default useAuth

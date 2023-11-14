@@ -33,6 +33,7 @@ import '../../styles/globals.css'
 import 'primereact/resources/themes/lara-light-indigo/theme.css'
 
 import { PrimeReactProvider } from 'primereact/api'
+import 'react-quill/dist/quill.snow.css'
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {

@@ -24,7 +24,7 @@ import ArticleInventoryTable from 'src/views/tables/ArticleInventoryTable'
 
 const ArticleInventory = () => {
   // ** State
-  const [value, setValue] = useState<string>('addArticle')
+  const [value, setValue] = useState<string>('allArticles')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -55,20 +55,20 @@ const ArticleInventory = () => {
           sx={{ borderBottom: theme => `1px solid ${theme.palette.divider}` }}
         >
           <Tab
-            value='addArticle'
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <PlusIcon />
-                <TabName>Add Article</TabName>
-              </Box>
-            }
-          />
-          <Tab
             value='allArticles'
             label={
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <ViewIcon />
                 <TabName>All Articles</TabName>
+              </Box>
+            }
+          />
+          <Tab
+            value='addArticle'
+            label={
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <PlusIcon />
+                <TabName>Add Article</TabName>
               </Box>
             }
           />
