@@ -7,7 +7,7 @@ import AccountCogOutline from 'mdi-material-ui/AccountCogOutline'
 import CreditCardOutline from 'mdi-material-ui/CreditCardOutline'
 import AlertCircleOutline from 'mdi-material-ui/AlertCircleOutline'
 import Book from 'mdi-material-ui/Book'
-import HomeOutline from 'mdi-material-ui/HomeOutline'
+import Message from 'mdi-material-ui/Message'
 import FormatLetterCase from 'mdi-material-ui/FormatLetterCase'
 import Prescription from 'mdi-material-ui/Prescription'
 
@@ -68,6 +68,11 @@ const navigation = (): VerticalNavItemsType => {
         title: 'Add Course Details',
         icon: Book,
         path: '/course-details'
+      },
+      {
+        title: 'Quiz',
+        icon: Message,
+        path: '/quiz'
       },
       {
         title: 'Profile',

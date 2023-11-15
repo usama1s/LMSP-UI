@@ -51,8 +51,9 @@ const UserDropdown = () => {
 
   const getImage = async (file: any) => {
     var res = await getProfileImage(file)
-    console.log('Image : ', res)
-    // setProfileImg(res)
+    const binaryData = String.fromCharCode.apply(null, new Uint8Array(res))
+    setProfileImg(btoa(binaryData))
+    console.log('Image : ', binaryData)
   }
   // ** Hooks
   const router = useRouter()
@@ -82,6 +83,7 @@ const UserDropdown = () => {
     }
   }
 
+  console.log('Profile', profileImg)
   return (
     <Fragment>
       <Badge
@@ -96,7 +98,7 @@ const UserDropdown = () => {
           onClick={handleDropdownOpen}
           sx={{ width: 40, height: 40 }}
           // src='/images/avatars/1.png'
-          src={profileImg}
+          src={`data:image/png;base64,${profileImg}`}
         />
       </Badge>
       <Menu

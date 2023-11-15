@@ -40,10 +40,11 @@ const useAuth = (): AuthHook => {
   const login = async (credentials: { username: string; password: string; role: number }) => {
     try {
       const response = await api.post('/auth/login', credentials)
-      const { user } = response.data
-      localStorage.setItem('user', JSON.stringify(user))
+      // const { user } = response.data
+      console.log('user', response)
+      // localStorage.setItem('user', JSON.stringify(user))
       //   localStorage.setItem('token', token)
-      setUser(user)
+      // setUser(user)
     } catch (error) {
       console.error('Login failed:', error)
     }
@@ -53,10 +54,10 @@ const useAuth = (): AuthHook => {
     try {
       const isMac = typeof window !== 'undefined' ? navigator.platform.toUpperCase().indexOf('MAC') >= 0 : false
       const lastIndex = !isMac ? filename.lastIndexOf('\\') : filename.lastIndexOf('/')
-
       const result = filename.substring(lastIndex + 1)
-      const response = await api.get(`/shared/uploads/${result}`)
 
+      const response = await api.get(`/general/uploads/${result}`)
+      console.log(response?.data)
       return response?.data
     } catch (error) {
       console.error('Failed to fetch image:', error)

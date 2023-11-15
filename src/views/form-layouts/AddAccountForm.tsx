@@ -68,7 +68,8 @@ const AddAccountForm = () => {
   // ** State
   const [openAlert, setOpenAlert] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string>('')
-  const [imgFile, setImgFile] = useState<File | null>(null)
+  const [imgFile, setImageFile] = useState<string>('')
+
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -81,7 +82,7 @@ const AddAccountForm = () => {
     designation: '',
     qualification: '',
     registrationDate: null,
-    adminType: '',
+    adminType: '0',
     status: 'active',
     profileImage: '',
     registrationId: ''
@@ -96,17 +97,36 @@ const AddAccountForm = () => {
     }
   }, [])
 
-  const onChange = (file: ChangeEvent) => {
-    const reader = new FileReader()
+  const toBase64 = (file: File) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader()
+
+      fileReader.readAsDataURL(file)
+
+      fileReader.onload = () => {
+        resolve(fileReader.result)
+      }
+
+      fileReader.onerror = error => {
+        reject(error)
+      }
+    })
+  }
+
+  const onChange = async (file: ChangeEvent) => {
     const { files } = file.target as HTMLInputElement
+    const base64 = await toBase64(files[0])
+    var splitted = base64 as string
+    setFormData({
+      ...formData,
+      profileImage: splitted.split(',')[1]
+    })
+
+    const reader = new FileReader()
     if (files && files.length !== 0) {
       reader.onload = () => {
-        setFormData({
-          ...formData,
-          profileImage: reader.result as string
-        })
+        setImageFile(reader.result as string)
       }
-      setImgFile(files[0])
       reader.readAsDataURL(files[0])
     }
   }
@@ -118,7 +138,6 @@ const AddAccountForm = () => {
   }
 
   const handleSaveChanges = async () => {
-    console.log(formData)
     const isAnyFieldEmpty = Object.values(formData).some(field => {
       if (user?.admin_type == 1 && field == 'registrationId' && field == 'adminType') {
         return field
@@ -138,36 +157,31 @@ const AddAccountForm = () => {
       setOpenAlert(true)
     } else {
       try {
-        const dataForApiCall = new FormData()
-        dataForApiCall.append('profile_image', imgFile)
-        dataForApiCall.append('first_name', formData.firstName)
-        dataForApiCall.append('last_name', formData.lastName)
-        dataForApiCall.append('marital_status', formData.maritalStatus)
-        dataForApiCall.append(
-          'register_date',
-          formData.registrationDate?.getDate() +
-            '/' +
-            (parseInt(formData.registrationDate?.getMonth()) + 1) +
-            '/' +
-            formData.registrationDate?.getFullYear()
-        )
-        dataForApiCall.append('admin_type', formData.adminType)
-
-        Object.entries(formData).forEach(([key, value]) => {
-          if (
-            !['profileImage', 'firstName', 'lastName', 'maritalStatus', 'registrationDate', 'adminType'].includes(key)
-          ) {
-            dataForApiCall.append(key, value as string)
-          }
-        })
         var userToAddRole = '1'
         if (user?.admin_type == 2) {
           userToAddRole = '2'
         } else if (user?.admin_type == 4) {
           userToAddRole = '3'
         }
-        dataForApiCall.append('role', userToAddRole)
-        const res = await customApiCall('post', 'auth/register', dataForApiCall).then(r => {
+        const requestData = {
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          role: userToAddRole,
+          marital_status: formData.maritalStatus,
+          country: formData.country,
+          organization: formData.organization,
+          designation: formData.designation,
+          qualification: formData.qualification,
+          register_date: formData.registrationDate,
+          admin_type: formData.adminType,
+          register_id: formData.registrationId,
+          // employee_id: formData.employee_id,
+          profile_image_type: 'image/jpeg',
+          profile_image: formData.profileImage
+        }
+        const res = await customApiCall('post', 'auth/register', requestData).then(r => {
           alert(r?.message)
           setFormData({
             firstName: '',
@@ -185,6 +199,7 @@ const AddAccountForm = () => {
             status: 'active',
             profileImage: ''
           })
+          setImageFile('')
         })
 
         setOpenAlert(false)
@@ -225,7 +240,7 @@ const AddAccountForm = () => {
         <Grid container spacing={7}>
           <Grid item xs={12} sx={{ marginTop: 4.8, marginBottom: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <ImgStyled src={formData.profileImage || '/images/avatars/1.png'} alt='Profile Pic' />
+              <ImgStyled src={imgFile || '/images/avatars/1.png'} alt='Profile Pic' />
               <Box>
                 <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
                   Upload Photo
@@ -245,6 +260,7 @@ const AddAccountForm = () => {
                       ...formData,
                       profileImage: '/images/avatars/1.png'
                     })
+                    setImageFile('/images/avatars/1.png')
                   }}
                 >
                   Reset
