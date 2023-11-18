@@ -52,13 +52,12 @@ const useAuth = (): AuthHook => {
 
   const getProfileImage = async (filename: string) => {
     try {
-      const isMac = typeof window !== 'undefined' ? navigator.platform.toUpperCase().indexOf('MAC') >= 0 : false
-      const lastIndex = !isMac ? filename.lastIndexOf('\\') : filename.lastIndexOf('/')
+      const lastIndex = filename.lastIndexOf('\\')
       const result = filename.substring(lastIndex + 1)
+      console.log('Image', result)
 
       const response = await api.get(`/general/uploads/${result}`)
-      console.log(response?.data)
-      return response?.data
+      return response?.data?.base64File
     } catch (error) {
       console.error('Failed to fetch image:', error)
     }

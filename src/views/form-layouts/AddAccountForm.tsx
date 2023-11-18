@@ -101,9 +101,9 @@ const AddAccountForm = () => {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader()
 
-      fileReader.readAsDataURL(file)
+      fileReader?.readAsDataURL(file)
 
-      fileReader.onload = () => {
+      fileReader?.onload = () => {
         resolve(fileReader.result)
       }
 

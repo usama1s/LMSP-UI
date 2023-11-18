@@ -5,10 +5,13 @@ import TextField from '@mui/material/TextField'
 import Button, { ButtonProps } from '@mui/material/Button'
 import styled from '@emotion/styled'
 import { CardHeader, Typography } from '@mui/material'
+import useAuth from 'src/@core/utils/useAuth'
 
 interface Topic {
   topic_name: string
   lecture_file: string
+  lecture_file_type: string
+  lecture_file_name: string
 }
 
 interface Module {
@@ -23,6 +26,7 @@ interface CourseData {
 }
 
 const CourseDetails: React.FC = () => {
+  const { customApiCall } = useAuth()
   const [courseData, setCourseData] = useState<CourseData>({
     course_name: '',
     course_description: '',
@@ -30,6 +34,22 @@ const CourseDetails: React.FC = () => {
   })
 
   const [currentFile, setCurrentFile] = useState<File | null>(null)
+
+  const toBase64 = (file: File) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader()
+
+      fileReader.readAsDataURL(file)
+
+      fileReader.onload = () => {
+        resolve(fileReader.result)
+      }
+
+      fileReader.onerror = error => {
+        reject(error)
+      }
+    })
+  }
 
   const handleCourseNameChange = (event: ChangeEvent<HTMLInputElement>) => {
     setCourseData(prevData => ({ ...prevData, course_name: event.target.value }))
@@ -68,7 +88,12 @@ const CourseDetails: React.FC = () => {
     setCourseData(prevData => {
       const updatedModules = [...prevData.modules]
       if (updatedModules[moduleIndex] && updatedModules[moduleIndex].module_name.trim() !== '') {
-        updatedModules[moduleIndex].topics.push({ topic_name: '', lecture_file: '' })
+        updatedModules[moduleIndex].topics.push({
+          topic_name: '',
+          lecture_file_name: '',
+          lecture_file_type: 'application/pdf',
+          lecture_file: ''
+        })
       }
       return { ...prevData, modules: updatedModules }
     })
@@ -90,22 +115,23 @@ const CourseDetails: React.FC = () => {
     })
   }
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>, moduleIndex: number, topicIndex: number) => {
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>, moduleIndex: number, topicIndex: number) => {
     const files = event.target.files
 
     if (files && files.length > 0) {
       const selectedFile = files[0]
+      const base64 = await toBase64(selectedFile)
+      var splitted = base64 as string
       setCurrentFile(selectedFile)
 
       setCourseData(prevData => {
         const updatedModules = [...prevData.modules]
         const updatedModule = { ...updatedModules[moduleIndex] }
         const updatedTopics = [...updatedModule.topics]
-
-        // Update only the specific topic for which the file is being changed
         updatedTopics[topicIndex] = {
           ...updatedTopics[topicIndex],
-          lecture_file: selectedFile.name
+          lecture_file_name: selectedFile.name,
+          lecture_file: splitted.split(',')[1]
         }
 
         updatedModule.topics = updatedTopics
@@ -116,9 +142,20 @@ const CourseDetails: React.FC = () => {
     }
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Log the entire data on submit
-    console.log(courseData)
+    // console.log(courseData)
+    await customApiCall('post', 'admin/add-full-course-details', courseData)
+      .then(r => {
+        console.log(r)
+        alert(r?.result?.message)
+
+        setCourseData({ course_name: '', course_description: '', modules: [] })
+        setCurrentFile(null)
+      })
+      .catch(err => {
+        console.log(err)
+      })
   }
 
   const handleCancel = () => {
@@ -196,7 +233,9 @@ const CourseDetails: React.FC = () => {
                     id={`file-upload-${moduleIndex}-${topicIndex}`}
                   />
                 </ButtonStyled>
-                <Box sx={{ marginLeft: 2 }}>{topic?.lecture_file && `Selected File: ${topic?.lecture_file}`}</Box>
+                <Box sx={{ marginLeft: 2 }}>
+                  {topic?.lecture_file_name && `Selected File: ${topic?.lecture_file_name}`}
+                </Box>
                 <Button
                   type='reset'
                   variant='outlined'

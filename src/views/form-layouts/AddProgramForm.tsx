@@ -1,5 +1,5 @@
 // ** React Imports
-import { ChangeEvent, forwardRef, MouseEvent, useState, ElementType, SyntheticEvent } from 'react'
+import { ChangeEvent, forwardRef, MouseEvent, useState, ElementType, SyntheticEvent, useEffect } from 'react'
 
 // ** MUI Imports
 import Card from '@mui/material/Card'
@@ -10,11 +10,12 @@ import TextField, { TextFieldProps } from '@mui/material/TextField'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import CardActions from '@mui/material/CardActions'
-import useAuth from 'src/@core/utils/useAuth'
+
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
 import CardWithCollapse from '../cards/CardWithCollapse'
-import 'react-datepicker/dist/react-datepicker.css'
+
+import useAuth from 'src/@core/utils/useAuth'
 
 interface FormData {
   programName: string
@@ -22,20 +23,66 @@ interface FormData {
   endDate: Date | null
 }
 
-const CustomInput = forwardRef((props: TextFieldProps, ref) => {
-  return <TextField fullWidth {...props} inputRef={ref} autoComplete='off' />
-})
-
 const AddProgramForm = () => {
   const { customApiCall } = useAuth()
   // ** States
   const [date, setDate] = useState<Date | null | undefined>(null)
+  const [courseData, setCourseData] = useState<Array<{ course_id: number | string; instructor_id: number | string }>>(
+    []
+  )
   const [formData, setFormData] = useState<FormData>({
     programName: '',
     startDate: null,
     endDate: null
   })
-  const handleSave = async () => {}
+  const [courses, setCourses] = useState([])
+  const [instructors, setInstructors] = useState([])
+  const handleSave = async () => {
+    if (courseData.length === 0) {
+      alert('Error: At least one course must be selected.')
+      return
+    }
+
+    // Check if each selected course has an instructor
+    const missingInstructor = courseData.find(course => !course.instructor_id)
+
+    if (missingInstructor) {
+      alert('Please select instructor agains all selected courses')
+      return
+    }
+
+    const programData = {
+      program_name: formData.programName,
+      start_date:
+        formData.startDate?.getDate() +
+        '/' +
+        (parseInt(formData.startDate?.getMonth()) + 1) +
+        '/' +
+        formData.startDate?.getFullYear(), // Assuming you want the date in "YYYY-MM-DD" format
+      end_date:
+        formData.endDate?.getDate() +
+        '/' +
+        (parseInt(formData.endDate?.getMonth()) + 1) +
+        '/' +
+        formData.endDate?.getFullYear(),
+      courses: courseData
+    }
+
+    await customApiCall('post', 'admin/add-program_plan', programData)
+      .then(r => {
+        alert(r.message)
+        setCourseData([])
+        setFormData({
+          programName: '',
+          startDate: null,
+          endDate: null
+        })
+        setDate(null)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
 
   const reset = (e: SyntheticEvent) => {
     e.preventDefault()
@@ -45,6 +92,45 @@ const AddProgramForm = () => {
       endDate: null
     })
   }
+  const handleCheckboxChange = (course_id: number | string) => {
+    const existingCourseIndex = courseData.findIndex(course => course.course_id === course_id)
+
+    if (existingCourseIndex !== -1) {
+      setCourseData(prevData => prevData.filter(course => course.course_id !== course_id))
+    } else {
+      setCourseData(prevData => [...prevData, { course_id, instructor_id: '' }])
+    }
+  }
+
+  const handleInstructorChange = (instructor_id: number | string, course_id: number | string) => {
+    setCourseData(prevData =>
+      prevData.map(course => (course.course_id === course_id ? { ...course, instructor_id } : course))
+    )
+  }
+
+  const getAllCourses = async () => {
+    await customApiCall('get', 'admin/get-all-courses').then(r => {
+      setCourses(r?.result)
+    })
+  }
+  const getAllInstructors = async () => {
+    await customApiCall('get', 'admin/get-all-instructors')
+      .then(r => {
+        console.log(r)
+        //  setCourses(r?.result)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
+
+  useEffect(() => {
+    getAllCourses()
+    getAllInstructors()
+  }, [])
+  const CustomInput = forwardRef((props: TextFieldProps, ref) => {
+    return <TextField fullWidth {...props} inputRef={ref} autoComplete='off' />
+  })
   return (
     <Card>
       <CardHeader title='Add Program' titleTypographyProps={{ variant: 'h6' }} />
@@ -99,35 +185,20 @@ const AddProgramForm = () => {
             />
           </Grid>
         </CardContent>
-
         <Grid container spacing={6} justifyContent={'center'} mt={10}>
-          <Grid item xs={12} sm={6} md={3.5}>
-            <CardWithCollapse />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3.5}>
-            <CardWithCollapse />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3.5}>
-            <CardWithCollapse />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3.5}>
-            <CardWithCollapse />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3.5}>
-            <CardWithCollapse />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3.5}>
-            <CardWithCollapse />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3.5}>
-            <CardWithCollapse />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3.5}>
-            <CardWithCollapse />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3.5}>
-            <CardWithCollapse />
-          </Grid>
+          {courses.length > 0 &&
+            courses.map((item, index) => (
+              <Grid item xs={12} sm={6} md={3.5} key={index}>
+                <CardWithCollapse
+                  onCheckboxChange={() => handleCheckboxChange(index + 1)} // Assuming course_ids start from 1
+                  onInstructorChange={(instructor_id: string | number) =>
+                    handleInstructorChange(instructor_id, index + 1)
+                  }
+                  name={item?.course_name}
+                  description={item?.course_description}
+                />
+              </Grid>
+            ))}
         </Grid>
         <Divider sx={{ marginTop: 10 }} />
         <CardActions>

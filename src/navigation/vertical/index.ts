@@ -54,11 +54,6 @@ const navigation = (): VerticalNavItemsType => {
     ]
   } else if (user?.role == 1 && user?.admin_type == 5) {
     return [
-      // {
-      //   title: 'Add Account',
-      //   icon: AddUser,
-      //   path: '/'
-      // },
       {
         title: 'Add Program',
         icon: Detail,
@@ -78,6 +73,26 @@ const navigation = (): VerticalNavItemsType => {
         title: 'Profile',
         icon: AddUser,
         path: '/account-settings'
+      },
+      {
+        title: 'Student Quiz',
+        icon: Message,
+        path: '/student-quiz'
+      },
+      {
+        title: 'Add Assignment',
+        icon: Message,
+        path: '/add-assignment'
+      },
+      {
+        title: 'Submit Assignment',
+        icon: Message,
+        path: '/submit-assignment'
+      },
+      {
+        title: 'Enroll Student',
+        icon: Message,
+        path: '/enroll-student'
       }
     ]
   } else if (user?.role == 1 && user?.admin_type == 3) {

@@ -51,9 +51,8 @@ const UserDropdown = () => {
 
   const getImage = async (file: any) => {
     var res = await getProfileImage(file)
-    const binaryData = String.fromCharCode.apply(null, new Uint8Array(res))
-    setProfileImg(btoa(binaryData))
-    console.log('Image : ', binaryData)
+    // console.log('Image', res)
+    setProfileImg(`data:image/png;base64,${res}`)
   }
   // ** Hooks
   const router = useRouter()
@@ -83,7 +82,6 @@ const UserDropdown = () => {
     }
   }
 
-  console.log('Profile', profileImg)
   return (
     <Fragment>
       <Badge
@@ -98,7 +96,7 @@ const UserDropdown = () => {
           onClick={handleDropdownOpen}
           sx={{ width: 40, height: 40 }}
           // src='/images/avatars/1.png'
-          src={`data:image/png;base64,${profileImg}`}
+          src={profileImg}
         />
       </Badge>
       <Menu
@@ -116,7 +114,7 @@ const UserDropdown = () => {
               badgeContent={<BadgeContentSpan />}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             >
-              <Avatar alt='John Doe' src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
+              <Avatar alt='John Doe' src={profileImg} sx={{ width: '2.5rem', height: '2.5rem' }} />
             </Badge>
             <Box sx={{ display: 'flex', marginLeft: 3, alignItems: 'flex-start', flexDirection: 'column' }}>
               <Typography sx={{ fontWeight: 600 }}>{user?.first_name + ' ' + user?.last_name}</Typography>

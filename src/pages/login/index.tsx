@@ -118,6 +118,7 @@ const LoginPage = () => {
           } else {
             userDetails = r?.user[0]
           }
+          console.log('details', r)
           localStorage.setItem('user', JSON.stringify(userDetails))
           setValues({
             email: '',

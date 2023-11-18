@@ -10,15 +10,19 @@ import IconButton from '@mui/material/IconButton'
 import CardContent from '@mui/material/CardContent'
 import CardActions from '@mui/material/CardActions'
 import Checkbox from '@mui/material/Checkbox'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
+import { FormControl, InputLabel } from '@mui/material'
 
 // Icons Imports
 import ChevronUp from 'mdi-material-ui/ChevronUp'
 import ChevronDown from 'mdi-material-ui/ChevronDown'
 
-const CardWithCollapse = () => {
+const CardWithCollapse = ({ onCheckboxChange, onInstructorChange, name, description }) => {
   // State
   const [collapse, setCollapse] = useState(false)
   const [highlighted, setHighlighted] = useState(false)
+  const [selectedTeacher, setSelectedTeacher] = useState('')
 
   const handleClick = () => {
     setCollapse(!collapse)
@@ -26,6 +30,12 @@ const CardWithCollapse = () => {
 
   const handleCheckboxChange = event => {
     setHighlighted(event.target.checked)
+    onCheckboxChange()
+  }
+
+  const handleTeacherChange = event => {
+    setSelectedTeacher(event.target.value)
+    onInstructorChange(event.target.value)
   }
 
   return (
@@ -35,15 +45,27 @@ const CardWithCollapse = () => {
         onChange={handleCheckboxChange}
         sx={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
       />
-      <CardMedia sx={{ height: '14.5625rem' }} image='/images/cards/paper-boat.png' />
+      {/* <CardMedia sx={{ height: '14.5625rem' }} image='/images/cards/paper-boat.png' /> */}
+
       <CardContent>
-        <Typography variant='h6' sx={{ marginBottom: 2 }}>
-          Aircraft Engine Course
+        <Typography variant='h6' sx={{ marginBottom: 2, marginTop: 5 }}>
+          {name}
         </Typography>
-        <Typography variant='body2'>
-          Although cards can support multiple actions, UI controls, and an overflow menu.
-        </Typography>
+        <Typography variant='body2'>{description}</Typography>
       </CardContent>
+      <FormControl fullWidth>
+        <InputLabel>Select Teacher</InputLabel>
+        <Select
+          label='Select Teacher'
+          value={selectedTeacher}
+          onChange={handleTeacherChange}
+          sx={{ marginBottom: 2, minWidth: '100%' }}
+        >
+          <MenuItem value={1}>Teacher 1</MenuItem>
+          <MenuItem value={2}>Teacher 2</MenuItem>
+          {/* Add more MenuItem components for other teachers */}
+        </Select>
+      </FormControl>
       <CardActions className='card-action-dense'>
         <Box
           sx={{
