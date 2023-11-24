@@ -102,7 +102,7 @@ const ArticleInventoryTable = () => {
 
   const getAllItems = async () => {
     await customApiCall('get', 'admin/get-all-item').then(r => {
-      r?.result.map((item, index) => {
+      r?.map((item, index) => {
         setRows(prev => [
           ...prev,
           createData(item?.inventory_id, item?.title, item?.make, item?.model, item?.expiry, item?.induction)

@@ -56,7 +56,7 @@ interface FormData {
   designation: string
   qualification: string
   registrationDate: Date | null
-  adminType: string
+  adminType: string[] | string
   status: string
   profileImage: string
   registrationId?: string
@@ -82,7 +82,7 @@ const AddAccountForm = () => {
     designation: '',
     qualification: '',
     registrationDate: null,
-    adminType: '0',
+    adminType: [],
     status: 'active',
     profileImage: '',
     registrationId: ''
@@ -174,13 +174,13 @@ const AddAccountForm = () => {
           organization: formData.organization,
           designation: formData.designation,
           qualification: formData.qualification,
-          register_date: formData.registrationDate,
-          admin_type: formData.adminType,
+          register_date: formData?.registrationDate?.toISOString().split('T')[0],
+          admin_types: formData.adminType,
           register_id: formData.registrationId,
-          // employee_id: formData.employee_id,
           profile_image_type: 'image/jpeg',
           profile_image: formData.profileImage
         }
+
         const res = await customApiCall('post', 'auth/register', requestData).then(r => {
           alert(r?.message)
           setFormData({
@@ -195,7 +195,7 @@ const AddAccountForm = () => {
             designation: '',
             qualification: '',
             registrationDate: null,
-            adminType: '2',
+            adminType: [],
             status: 'active',
             profileImage: ''
           })
@@ -234,6 +234,14 @@ const AddAccountForm = () => {
   const CustomInput = forwardRef((props: TextFieldProps, ref) => {
     return <TextField fullWidth {...props} inputRef={ref} autoComplete='off' />
   })
+
+  // Create a mapping between frontend labels and backend values
+  const adminTypeOptions = [
+    { value: '4', label: 'Student Incharge' },
+    { value: '2', label: 'Instructor Incharge' },
+    { value: '3', label: 'Inventory Incharge' },
+    { value: '5', label: 'Program Incharge' }
+  ]
   return (
     <CardContent>
       <form>
@@ -408,13 +416,23 @@ const AddAccountForm = () => {
                 <InputLabel>Admin Type</InputLabel>
                 <Select
                   label='Admin Type'
-                  defaultValue='2'
-                  onChange={e => setFormData({ ...formData, adminType: e.target.value as string })}
+                  value={formData.adminType} // Use value prop to manage selected values
+                  multiple
+                  onChange={e => setFormData({ ...formData, adminType: e.target.value as string[] })}
+                  renderValue={selected =>
+                    (selected as string[])
+                      .map(value => {
+                        const option = adminTypeOptions.find(opt => opt.value === value)
+                        return option ? option.label : value
+                      })
+                      .join(', ')
+                  }
                 >
-                  <MenuItem value='4'>Student Incharge</MenuItem>
-                  <MenuItem value='2'>Instructor Incharge</MenuItem>
-                  <MenuItem value='3'>Inventory Incharge</MenuItem>
-                  <MenuItem value='5'>Program Incharge</MenuItem>
+                  {adminTypeOptions.map(option => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>

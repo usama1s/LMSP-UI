@@ -125,12 +125,15 @@ const TabAccount = () => {
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
               <InputLabel>Role</InputLabel>
-              <Select label='Role' defaultValue='admin' disabled>
+              <Select
+                label='Role'
+                defaultValue={user?.role == '1' ? 'admin' : user?.role == '2' ? 'instructor' : 'student'}
+                disabled
+                value={user?.role == '1' ? 'admin' : user?.role == '2' ? 'instructor' : 'student'}
+              >
                 <MenuItem value='admin'>Admin</MenuItem>
-                <MenuItem value='author'>Author</MenuItem>
-                <MenuItem value='editor'>Editor</MenuItem>
-                <MenuItem value='maintainer'>Maintainer</MenuItem>
-                <MenuItem value='subscriber'>Subscriber</MenuItem>
+                <MenuItem value='instructor'>Instructor</MenuItem>
+                <MenuItem value='student'>Student</MenuItem>
               </Select>
             </FormControl>
           </Grid>

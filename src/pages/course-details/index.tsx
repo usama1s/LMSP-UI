@@ -148,7 +148,7 @@ const CourseDetails: React.FC = () => {
     await customApiCall('post', 'admin/add-full-course-details', courseData)
       .then(r => {
         console.log(r)
-        alert(r?.result?.message)
+        alert(r)
 
         setCourseData({ course_name: '', course_description: '', modules: [] })
         setCurrentFile(null)

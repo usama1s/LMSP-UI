@@ -1,93 +1,55 @@
-// StudentAssignmentPage.tsx
-import React, { useState, ElementType } from 'react'
-import { Container, Typography, Button, Paper, Box, ButtonProps } from '@mui/material'
+import React, { useEffect, useState } from 'react'
+import { Container, Typography, Paper, Grid, Button, Card, CardContent } from '@mui/material'
+import { useRouter } from 'next/router'
+import useAuth from 'src/@core/utils/useAuth'
 
-import { styled } from '@mui/material/styles'
+interface Quiz {
+  id: number
+  title: string
+}
 
-const StudentAssignmentPage: React.FC = () => {
-  const [pdfFile, setPdfFile] = useState<File | null>(null)
-  const [assignmentDetails, setAssignmentDetails] = useState({
-    answerFile: null as string | null
-  })
+const StudentQuizPage: React.FC = () => {
+  const router = useRouter()
+  const { customApiCall } = useAuth()
 
-  const toBase64 = (file: File) => {
-    return new Promise((resolve, reject) => {
-      const fileReader = new FileReader()
+  const quizzes: Quiz[] = [
+    { id: 1, title: 'Assignment 1' },
+    { id: 2, title: 'Assignment 2' },
+    { id: 3, title: 'Assignment 3' },
+    { id: 4, title: 'Assignment 4' }
+  ]
 
-      fileReader.readAsDataURL(file)
-
-      fileReader.onload = () => {
-        resolve(fileReader.result)
-      }
-
-      fileReader.onerror = error => {
-        reject(error)
-      }
-    })
-  }
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null
-    setPdfFile(file)
-    setAssignmentDetails({
-      ...assignmentDetails,
-      answerFile: await toBase64(file)
-    })
-  }
-  const handleSubmit = () => {
-    // Logic to submit assignment answer (answerFile)
-    console.log(assignmentDetails.answerFile)
-  }
-  const ButtonStyled = styled(Button)<ButtonProps & { component?: ElementType; htmlFor?: string }>(({ theme }) => ({
-    [theme.breakpoints.down('sm')]: {
-      width: '100%',
-      textAlign: 'center'
-    }
-  }))
   return (
-    <Container maxWidth='lg' style={{ marginTop: '2rem' }}>
+    <Container style={{ marginTop: '2rem', height: '100vh' }}>
       <Typography variant='h4' gutterBottom>
-        Submit Assignment
+        Student Assignment
       </Typography>
 
-      <Paper style={{ padding: '2rem', marginTop: '1rem' }}>
-        {/* <label htmlFor='answer-file'>
-          <Typography variant='body1' style={{ marginBottom: '1rem' }}>
-            Upload Answer (PDF)
-          </Typography>
-          <input type='file' id='answer-file' onChange={handleFileChange} accept='.pdf' />
-        </label> */}
-        <Box key={'pdffile'} display='flex' alignItems='center' mt={4}>
-          <ButtonStyled
-            component='label'
-            variant='contained'
-            htmlFor={`file-upload`}
-            sx={{ marginRight: 3, minWidth: 150 }}
-          >
-            Upload File
-            <input
-              hidden
-              type='file'
-              onChange={handleFileChange}
-              accept='application/pdf, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation'
-              id={`file-upload`}
-            />
-          </ButtonStyled>
-          <Box sx={{ marginLeft: 2 }}>Selected File : {pdfFile?.name}</Box>
-        </Box>
-
-        <Button
-          variant='contained'
-          color='primary'
-          onClick={handleSubmit}
-          disabled={!assignmentDetails.answerFile}
-          style={{ marginTop: '1rem' }}
-        >
-          Submit Answer
-        </Button>
-      </Paper>
+      <Grid container spacing={3}>
+        {quizzes.map(quiz => (
+          <Grid item xs={12} sm={6} md={4} key={quiz.id}>
+            <Card>
+              <CardContent>
+                <Typography variant='h4' component='div'>
+                  {quiz.title}
+                </Typography>
+              </CardContent>
+              <Button
+                onClick={() => {
+                  router.push(`/submit-assignment/${quiz.id}`)
+                }}
+                fullWidth
+                variant='contained'
+                color='primary'
+              >
+                View Assignment
+              </Button>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
     </Container>
   )
 }
 
-export default StudentAssignmentPage
+export default StudentQuizPage

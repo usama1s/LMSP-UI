@@ -18,7 +18,7 @@ import { FormControl, InputLabel } from '@mui/material'
 import ChevronUp from 'mdi-material-ui/ChevronUp'
 import ChevronDown from 'mdi-material-ui/ChevronDown'
 
-const CardWithCollapse = ({ onCheckboxChange, onInstructorChange, name, description }) => {
+const CardWithCollapse = ({ onCheckboxChange, onInstructorChange, name, description, instructors }) => {
   // State
   const [collapse, setCollapse] = useState(false)
   const [highlighted, setHighlighted] = useState(false)
@@ -61,8 +61,10 @@ const CardWithCollapse = ({ onCheckboxChange, onInstructorChange, name, descript
           onChange={handleTeacherChange}
           sx={{ marginBottom: 2, minWidth: '100%' }}
         >
-          <MenuItem value={1}>Teacher 1</MenuItem>
-          <MenuItem value={2}>Teacher 2</MenuItem>
+          {instructors.map((item, index) => (
+            <MenuItem value={item?.id}>{item.first_name + ' ' + item?.last_name}</MenuItem>
+          ))}
+          {/* <MenuItem value={2}>Teacher 2</MenuItem> */}
           {/* Add more MenuItem components for other teachers */}
         </Select>
       </FormControl>

@@ -53,18 +53,8 @@ const AddProgramForm = () => {
 
     const programData = {
       program_name: formData.programName,
-      start_date:
-        formData.startDate?.getDate() +
-        '/' +
-        (parseInt(formData.startDate?.getMonth()) + 1) +
-        '/' +
-        formData.startDate?.getFullYear(), // Assuming you want the date in "YYYY-MM-DD" format
-      end_date:
-        formData.endDate?.getDate() +
-        '/' +
-        (parseInt(formData.endDate?.getMonth()) + 1) +
-        '/' +
-        formData.endDate?.getFullYear(),
+      start_date: formData.startDate?.toISOString().slice(0, 19).replace('T', ' '),
+      end_date: formData.endDate?.toISOString().slice(0, 19).replace('T', ' '),
       courses: courseData
     }
 
@@ -77,6 +67,7 @@ const AddProgramForm = () => {
           startDate: null,
           endDate: null
         })
+        setCourseData([])
         setDate(null)
       })
       .catch(err => {
@@ -110,13 +101,14 @@ const AddProgramForm = () => {
 
   const getAllCourses = async () => {
     await customApiCall('get', 'admin/get-all-courses').then(r => {
-      setCourses(r?.result)
+      console.log('courses', r)
+      setCourses(r)
     })
   }
   const getAllInstructors = async () => {
     await customApiCall('get', 'admin/get-all-instructors')
       .then(r => {
-        console.log(r)
+        setInstructors(r?.instructors)
         //  setCourses(r?.result)
       })
       .catch(err => {
@@ -186,7 +178,8 @@ const AddProgramForm = () => {
           </Grid>
         </CardContent>
         <Grid container spacing={6} justifyContent={'center'} mt={10}>
-          {courses.length > 0 &&
+          {courses &&
+            courses.length > 0 &&
             courses.map((item, index) => (
               <Grid item xs={12} sm={6} md={3.5} key={index}>
                 <CardWithCollapse
@@ -196,6 +189,7 @@ const AddProgramForm = () => {
                   }
                   name={item?.course_name}
                   description={item?.course_description}
+                  instructors={instructors}
                 />
               </Grid>
             ))}

@@ -42,7 +42,8 @@ const UserDropdown = () => {
 
   useEffect(() => {
     var user = localStorage.getItem('user')
-    if (user) {
+
+    if (user && user != undefined) {
       var loggedInUser = JSON.parse(user)
       setUser(loggedInUser)
       getImage(loggedInUser?.profile_picture)

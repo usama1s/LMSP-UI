@@ -160,6 +160,7 @@ const TeacherAssignmentPage: React.FC = () => {
             selected={dueDate}
             showYearDropdown
             showMonthDropdown
+            showTimeInput
             placeholderText='MM-DD-YYYY'
             customInput={<CustomInput label={'Due Date'} />}
             id='form-layouts-separator-date'

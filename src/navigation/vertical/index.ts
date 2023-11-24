@@ -27,14 +27,62 @@ const navigation = (): VerticalNavItemsType => {
   useEffect(() => {
     var loggedInUser = localStorage.getItem('user')
     if (loggedInUser) {
+      console.log('user', loggedInUser)
       var u = JSON.parse(loggedInUser)
       setUser(u)
     } else {
       router.push('/login')
     }
   }, [])
+  if (user?.role == 2) {
+    return [
+      {
+        title: 'Quiz',
+        icon: Message,
+        path: '/quiz'
+      },
 
-  if (user?.role == 1 && user?.admin_type == 1) {
+      {
+        title: 'Add Assignment',
+        icon: Message,
+        path: '/add-assignment'
+      },
+
+      {
+        title: 'Mark Attendance',
+        icon: Message,
+        path: '/mark-attendance'
+      }
+    ]
+  } else if (user?.role == 3) {
+    return [
+      {
+        title: 'Profile',
+        icon: AddUser,
+        path: '/account-settings'
+      },
+      {
+        title: 'Courses',
+        icon: Message,
+        path: '/courses'
+      },
+      // {
+      //   title: 'Submit Assignment',
+      //   icon: Message,
+      //   path: '/submit-assignment'
+      // },
+      // {
+      //   title: 'Student Quiz',
+      //   icon: Message,
+      //   path: '/student-quiz'
+      // },
+      {
+        title: 'Attendance',
+        icon: Message,
+        path: '/attendance-details'
+      }
+    ]
+  } else if (user?.role == 1 && user?.admin_type == 1) {
     return [
       {
         title: 'Accounts',
@@ -52,7 +100,99 @@ const navigation = (): VerticalNavItemsType => {
         path: '/account-settings'
       }
     ]
-  } else if (user?.role == 1 && user?.admin_type == 5) {
+  } else if (user?.role == 1 && user?.admin_type == 2) {
+    return [
+      {
+        title: 'Add Account',
+        icon: AddUser,
+        path: '/'
+      },
+      {
+        title: 'Schedule Class',
+        icon: Message,
+        path: '/create-class'
+      },
+      {
+        title: 'Profile',
+        icon: AddUser,
+        path: '/account-settings'
+      }
+    ]
+  } else if (user?.role == 1 && user?.admin_type == 4) {
+    return [
+      {
+        title: 'Add Account',
+        icon: AddUser,
+        path: '/'
+      },
+      {
+        title: 'Enroll Student',
+        icon: Message,
+        path: '/enroll-student'
+      },
+      {
+        title: 'Profile',
+        icon: AddUser,
+        path: '/account-settings'
+      }
+      // {
+      //   title: 'Quiz',
+      //   icon: Message,
+      //   path: '/quiz'
+      // },
+      // {
+      //   title: 'Student Quiz',
+      //   icon: Message,
+      //   path: '/student-quiz'
+      // },
+      // {
+      //   title: 'Add Assignment',
+      //   icon: Message,
+      //   path: '/add-assignment'
+      // },
+      // {
+      //   title: 'Submit Assignment',
+      //   icon: Message,
+      //   path: '/submit-assignment'
+      // },
+
+      // {
+      //   title: 'Schedule Class',
+      //   icon: Message,
+      //   path: '/create-class'
+      // },
+      // {
+      //   title: 'Mark Attendance',
+      //   icon: Message,
+      //   path: '/mark-attendance'
+      // },
+      // {
+      //   title: 'Student Dashboard',
+      //   icon: Message,
+      //   path: '/student-dashboard'
+      // }
+    ]
+  }
+  // else if (user?.role == 2) {
+  //   return [
+  //     {
+  //       title: 'Mark Attendance',
+  //       icon: Message,
+  //       path: '/mark-attendance'
+  //     },
+  //     {
+  //       title: 'Add Assignment',
+  //       icon: Message,
+  //       path: '/add-assignment'
+  //     },
+  //     {
+  //       title: 'Quiz',
+  //       icon: Message,
+  //       path: '/quiz'
+  //     }
+  //   ]
+  // }
+  else if (user?.role == 1 && user?.admin_type == 5) {
     return [
       {
         title: 'Add Program',
@@ -64,35 +204,11 @@ const navigation = (): VerticalNavItemsType => {
         icon: Book,
         path: '/course-details'
       },
-      {
-        title: 'Quiz',
-        icon: Message,
-        path: '/quiz'
-      },
+
       {
         title: 'Profile',
         icon: AddUser,
         path: '/account-settings'
-      },
-      {
-        title: 'Student Quiz',
-        icon: Message,
-        path: '/student-quiz'
-      },
-      {
-        title: 'Add Assignment',
-        icon: Message,
-        path: '/add-assignment'
-      },
-      {
-        title: 'Submit Assignment',
-        icon: Message,
-        path: '/submit-assignment'
-      },
-      {
-        title: 'Enroll Student',
-        icon: Message,
-        path: '/enroll-student'
       }
     ]
   } else if (user?.role == 1 && user?.admin_type == 3) {
@@ -141,6 +257,12 @@ const navigation = (): VerticalNavItemsType => {
       path: '/pages/article-detail',
       openInNewTab: true
     }
+    // {
+    //   title: 'Attempt Quiz',
+    //   icon: Detail,
+    //   path: '/pages/AttemptQuiz',
+    //   openInNewTab: true
+    // }
     // {
     //   sectionTitle: 'Pages'
     // }

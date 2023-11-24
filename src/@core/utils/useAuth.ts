@@ -102,7 +102,7 @@ const useAuth = (): AuthHook => {
         requestData = JSON.stringify(data)
         config.headers['Content-Type'] = 'application/json'
       }
-
+      console.log(config)
       const response = await (api as any)[method](endpoint, requestData, config)
 
       return response.data as T

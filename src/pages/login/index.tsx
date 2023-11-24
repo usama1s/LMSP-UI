@@ -113,12 +113,12 @@ const LoginPage = () => {
           role: parseInt(values.role)
         }).then(r => {
           var userDetails
-          if (parseInt(values.role) == 2) {
-            userDetails = r?.user
-          } else {
-            userDetails = r?.user[0]
-          }
-          console.log('details', r)
+          // if (parseInt(values.role) == 2) {
+          //   userDetails = r
+          // } else {
+          userDetails = r[0][0]
+          // }
+          console.log('RRR', r)
           localStorage.setItem('user', JSON.stringify(userDetails))
           setValues({
             email: '',

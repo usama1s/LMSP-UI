@@ -27,6 +27,7 @@ const EnrollStudent: React.FC = () => {
   const { customApiCall } = useAuth()
   const [enrollmentDate, setEnrollmentDate] = useState<Date | null>(null)
   const [pdfFile, setPdfFile] = useState<File | null>(null)
+  const [students, setStudents] = useState([])
   const [enrollmentDetails, setenrollmentDetails] = useState({
     enrollment_date: '',
     student_id: '',
@@ -50,9 +51,15 @@ const EnrollStudent: React.FC = () => {
     }
   }))
 
+  const getAllStudents = async () => {
+    await customApiCall('get', 'general/get-all-students').then(r => {
+      setStudents(r)
+    })
+  }
+
   const getAllProgramPlans = async () => {
     await customApiCall('get', 'admin/get-all-program_plan').then(r => {
-      setPrograms(r?.result)
+      setPrograms(r)
     })
   }
 
@@ -68,7 +75,15 @@ const EnrollStudent: React.FC = () => {
       alert('Please fill all details')
     } else {
       const assignmentData = {}
-      // await customApiCall('post', '/instructor/add-assignment')
+      await customApiCall('post', '/instructor/enroll-student', enrollmentDetails).then(r => {
+        alert(r?.message)
+        setenrollmentDetails({
+          enrollment_date: '',
+          student_id: '',
+          program_plan_id: '',
+          program_status: 1
+        })
+      })
       console.log(enrollmentDetails)
     }
   }
@@ -77,6 +92,7 @@ const EnrollStudent: React.FC = () => {
   })
 
   useEffect(() => {
+    getAllStudents()
     getAllProgramPlans()
   }, [])
   return (
@@ -103,27 +119,26 @@ const EnrollStudent: React.FC = () => {
           <FormControl fullWidth style={{ marginTop: '2rem' }}>
             <InputLabel>Student</InputLabel>
             <Select
-              label='Student Id'
-              value={enrollmentDetails.program_plan_id}
+              label='Student'
+              value={enrollmentDetails.student_id}
               // defaultValue='single'
-              onChange={e => setenrollmentDetails({ ...enrollmentDetails, program_plan_id: e.target.value as string })}
+              onChange={e => setenrollmentDetails({ ...enrollmentDetails, student_id: e.target.value as string })}
             >
-              {programs?.map((item, index) => (
-                <MenuItem value={item?.program_plan_id}>{item?.program_name}</MenuItem>
+              {students?.map((item, index) => (
+                <MenuItem value={item?.student_id}>{item?.first_name + ' ' + item?.last_name}</MenuItem>
               ))}
             </Select>
           </FormControl>
           <FormControl fullWidth style={{ marginTop: '2rem', marginBottom: '2rem' }}>
             <InputLabel>Status</InputLabel>
             <Select
-              label='Enrollment Date'
-              value={enrollmentDetails.program_plan_id}
+              label='Status'
+              value={enrollmentDetails.program_status}
               // defaultValue='single'
-              onChange={e => setenrollmentDetails({ ...enrollmentDetails, program_plan_id: e.target.value as string })}
+              onChange={e => setenrollmentDetails({ ...enrollmentDetails, program_status: e.target.value as string })}
             >
-              {programs?.map((item, index) => (
-                <MenuItem value={item?.program_plan_id}>{item?.program_name}</MenuItem>
-              ))}
+              <MenuItem value='1'>Active</MenuItem>
+              <MenuItem value='0'>InActive</MenuItem>
             </Select>
           </FormControl>
 

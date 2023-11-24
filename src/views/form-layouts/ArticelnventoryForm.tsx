@@ -1,5 +1,5 @@
 // ** React Imports
-import { ChangeEvent, forwardRef, MouseEvent, useState, ElementType, SyntheticEvent } from 'react'
+import { ChangeEvent, forwardRef, MouseEvent, useState, ElementType, SyntheticEvent, useEffect } from 'react'
 
 // ** MUI Imports
 import Card from '@mui/material/Card'
@@ -19,6 +19,7 @@ import useAuth from 'src/@core/utils/useAuth'
 import DatePicker from 'react-datepicker'
 import dynamic from 'next/dynamic'
 import { Quill } from 'react-quill'
+import 'react-quill/dist/quill.snow.css'
 
 interface FormData {
   title: string
@@ -77,6 +78,7 @@ var htmlCodeFailureReson = null
 
 const ArticleInventoryForm = () => {
   const { customApiCall } = useAuth()
+  const [user, setUser] = useState(null)
   // ** States
   const [date, setDate] = useState<Date | null | undefined>(null)
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/placeholder.png')
@@ -95,6 +97,14 @@ const ArticleInventoryForm = () => {
     videoFile: videoFile,
     imageFiles: imageFiles
   })
+
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('user')
+    if (loggedIn) {
+      var parsedUser = JSON.parse(loggedIn)
+      setUser(parsedUser)
+    }
+  }, [])
 
   const onImageChange = (event: ChangeEvent) => {
     const { files } = event.target as HTMLInputElement
@@ -136,6 +146,16 @@ const ArticleInventoryForm = () => {
     }
   }))
 
+  const readFileAsBase64 = file => {
+    return new Promise(resolve => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onloadend = () => {
+        resolve(reader.result)
+      }
+    })
+  }
+
   const onChangeVideo = (file: ChangeEvent) => {
     const reader = new FileReader()
     const { files } = file.target as HTMLInputElement
@@ -156,24 +176,46 @@ const ArticleInventoryForm = () => {
     }
   }
   const handleSave = async () => {
-    const dataForApiCall = new FormData()
-    imageFiles.map((item, index) => {
-      dataForApiCall.append(`image_${index + 1}`, item)
-    })
-    dataForApiCall.append('description', htmlCode)
-    dataForApiCall.append('failure_reason', htmlCodeFailureReson)
+    // const dataForApiCall = new FormData()
+    // imageFiles.map((item, index) => {
+    //   dataForApiCall.append(`image_${index + 1}`, item)
+    // })
+    // dataForApiCall.append('description', htmlCode)
+    // dataForApiCall.append('failure_reason', htmlCodeFailureReson)
 
-    dataForApiCall.append('admin_id', '1')
-    dataForApiCall.append('video_file', videoFile)
-    dataForApiCall.append('information_file', infoFile)
-    dataForApiCall.append('expiry', formData.expiry?.toISOString().slice(0, 19).replace('T', ' '))
-    dataForApiCall.append('induction', formData.induction?.toISOString().slice(0, 19).replace('T', ' '))
+    // dataForApiCall.append('admin_id', '1')
+    // dataForApiCall.append('video_file', videoFile)
+    // dataForApiCall.append('information_file', infoFile)
+    // dataForApiCall.append('expiry', formData.expiry?.toISOString().slice(0, 19).replace('T', ' '))
+    // dataForApiCall.append('induction', formData.induction?.toISOString().slice(0, 19).replace('T', ' '))
 
-    Object.entries(formData).forEach(([key, value]) => {
-      if (!['imageFiles', 'videoFile', 'infoFile', 'expiry', 'induction', 'description'].includes(key)) {
-        dataForApiCall.append(key, value as string)
-      }
-    })
+    // Object.entries(formData).forEach(([key, value]) => {
+    //   if (!['imageFiles', 'videoFile', 'infoFile', 'expiry', 'induction', 'description'].includes(key)) {
+    //     dataForApiCall.append(key, value as string)
+    //   }
+    // })
+
+    const dataForApiCall = {
+      title: formData.title,
+      description: htmlCode,
+      failure_reason: htmlCodeFailureReson,
+      admin_id: user?.id,
+      expiry: formData.expiry?.toISOString().slice(0, 19).replace('T', ' '),
+      induction: formData.induction?.toISOString().slice(0, 19).replace('T', ' '),
+      make: formData.make,
+      model: formData.model,
+      ...Object.fromEntries(
+        await Promise.all(
+          imageFiles.map(async (file, index) => {
+            const base64Data = await readFileAsBase64(file)
+            return [`image${index + 1}`, base64Data]
+          })
+        )
+      ),
+      video_file: videoFile ? await readFileAsBase64(videoFile) : null,
+      information_file: infoFile ? await readFileAsBase64(infoFile) : null
+    }
+
     const res = await customApiCall('post', 'admin/add-item', dataForApiCall).then(r => {
       alert(r?.message)
       setFormData({

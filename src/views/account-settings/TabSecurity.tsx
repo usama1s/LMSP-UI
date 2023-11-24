@@ -1,5 +1,5 @@
 // ** React Imports
-import { ChangeEvent, MouseEvent, useState } from 'react'
+import { ChangeEvent, MouseEvent, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -17,10 +17,8 @@ import InputAdornment from '@mui/material/InputAdornment'
 
 // ** Icons Imports
 import EyeOutline from 'mdi-material-ui/EyeOutline'
-import KeyOutline from 'mdi-material-ui/KeyOutline'
 import EyeOffOutline from 'mdi-material-ui/EyeOffOutline'
-import LockOpenOutline from 'mdi-material-ui/LockOpenOutline'
-
+import useAuth from 'src/@core/utils/useAuth'
 interface State {
   newPassword: string
   currentPassword: string
@@ -31,7 +29,9 @@ interface State {
 }
 
 const TabSecurity = () => {
+  const { customApiCall } = useAuth()
   // ** States
+  const [user, setUser] = useState(null)
   const [values, setValues] = useState<State>({
     newPassword: '',
     currentPassword: '',
@@ -41,6 +41,13 @@ const TabSecurity = () => {
     showConfirmNewPassword: false
   })
 
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('user')
+    if (loggedIn) {
+      var parsedUser = JSON.parse(loggedIn)
+      setUser(parsedUser)
+    }
+  }, [])
   // Handle Current Password
   const handleCurrentPasswordChange = (prop: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [prop]: event.target.value })
@@ -72,6 +79,31 @@ const TabSecurity = () => {
   }
   const handleMouseDownConfirmNewPassword = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
+  }
+
+  const handleSubmit = async () => {
+    if (!values.currentPassword || !values.newPassword || !values.confirmNewPassword) {
+      alert('Please fill all fields')
+    } else if (values.newPassword != values.confirmNewPassword) {
+      alert('New Password and Confirm New Password doesnot match')
+    } else {
+      const dataToSend = {
+        user_id: user?.id,
+        current_password: values.currentPassword,
+        new_password: values.newPassword
+      }
+      await customApiCall('put', 'general/change-password', dataToSend).then(r => {
+        alert(r?.message)
+        setValues({
+          newPassword: '',
+          currentPassword: '',
+          showNewPassword: false,
+          confirmNewPassword: '',
+          showCurrentPassword: false,
+          showConfirmNewPassword: false
+        })
+      })
+    }
   }
 
   return (
@@ -171,39 +203,8 @@ const TabSecurity = () => {
       <Divider sx={{ margin: 0 }} />
 
       <CardContent>
-        {/* <Box sx={{ mt: 1.75, display: 'flex', alignItems: 'center' }}>
-          <KeyOutline sx={{ marginRight: 3 }} />
-          <Typography variant='h6'>Two-factor authentication</Typography>
-        </Box> */}
-
-        {/* <Box sx={{ mt: 5.75, display: 'flex', justifyContent: 'center' }}>
-          <Box
-            sx={{
-              maxWidth: 368,
-              display: 'flex',
-              textAlign: 'center',
-              alignItems: 'center',
-              flexDirection: 'column'
-            }}
-          >
-            <Avatar
-              variant='rounded'
-              sx={{ width: 48, height: 48, color: 'common.white', backgroundColor: 'primary.main' }}
-            >
-              <LockOpenOutline sx={{ fontSize: '1.75rem' }} />
-            </Avatar>
-            <Typography sx={{ fontWeight: 600, marginTop: 3.5, marginBottom: 3.5 }}>
-              Two factor authentication is not enabled yet.
-            </Typography>
-            <Typography variant='body2'>
-              Two-factor authentication adds an additional layer of security to your account by requiring more than just
-              a password to log in. Learn more.
-            </Typography>
-          </Box>
-        </Box> */}
-
         <Box sx={{ mt: 11 }}>
-          <Button variant='contained' sx={{ marginRight: 3.5 }}>
+          <Button variant='contained' sx={{ marginRight: 3.5 }} onClick={handleSubmit}>
             Save Changes
           </Button>
           <Button
