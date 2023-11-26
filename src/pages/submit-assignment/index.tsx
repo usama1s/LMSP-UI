@@ -10,15 +10,25 @@ interface Quiz {
 
 const StudentQuizPage: React.FC = () => {
   const router = useRouter()
+  const { id } = router.query
   const { customApiCall } = useAuth()
+  const [user, setUser] = useState(null)
+  const [assignments, setAssignments] = useState([])
 
-  const quizzes: Quiz[] = [
-    { id: 1, title: 'Assignment 1' },
-    { id: 2, title: 'Assignment 2' },
-    { id: 3, title: 'Assignment 3' },
-    { id: 4, title: 'Assignment 4' }
-  ]
+  const getAssignments = async () => {
+    await customApiCall('get', `student/get-assignment/${user?.student_id}/${id}`).then(r => {
+      setAssignments(r?.assignmentData)
+    })
+  }
+  useEffect(() => {
+    var loggedInUser = localStorage.getItem('user')
+    if (loggedInUser) {
+      var parsedUser = JSON.parse(loggedInUser)
 
+      setUser(parsedUser)
+    }
+    getAssignments()
+  }, [])
   return (
     <Container style={{ marginTop: '2rem', height: '100vh' }}>
       <Typography variant='h4' gutterBottom>
@@ -26,17 +36,22 @@ const StudentQuizPage: React.FC = () => {
       </Typography>
 
       <Grid container spacing={3}>
-        {quizzes.map(quiz => (
-          <Grid item xs={12} sm={6} md={4} key={quiz.id}>
+        {Object.keys(assignments).map((assignment, index) => (
+          <Grid item xs={12} sm={6} md={4} key={assignment}>
             <Card>
               <CardContent>
                 <Typography variant='h4' component='div'>
-                  {quiz.title}
+                  {assignments[assignment][0]?.assignment_title}
+                </Typography>
+                <Typography variant='h6' component='div'>
+                  {assignments[assignment][0]?.assignment_instruction}
                 </Typography>
               </CardContent>
               <Button
                 onClick={() => {
-                  router.push(`/submit-assignment/${quiz.id}`)
+                  let assignmentDataJSON = JSON.stringify(assignments[assignment])
+                  localStorage.setItem('assignmentData', assignmentDataJSON)
+                  router.push(`/submit-assignment/${assignment}`)
                 }}
                 fullWidth
                 variant='contained'

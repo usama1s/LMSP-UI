@@ -1,5 +1,5 @@
 // pages/quiz.tsx
-import React, { ElementType, useState, forwardRef } from 'react'
+import React, { ElementType, useState, forwardRef, useEffect } from 'react'
 import {
   Container,
   Typography,
@@ -40,7 +40,13 @@ const QuizPage: React.FC = () => {
   ])
   const [img, setImg] = useState<string | null>(null)
   const [programPlanId, setProgramPlanId] = useState<string | null>(null)
+  const [programPlans, setPrograms] = useState([])
 
+  const getAllProgramPlans = async () => {
+    await customApiCall('get', 'admin/get-all-program_plan').then(r => {
+      setPrograms(r)
+    })
+  }
   const toBase64 = (file: File) => {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader()
@@ -107,9 +113,6 @@ const QuizPage: React.FC = () => {
   }
 
   const handleSubmit = async () => {
-    console.log(questions.length)
-    console.log(quizDaate)
-    console.log(programPlanId)
     if (!quizDaate || !programPlanId || questions.length == 0) {
       alert('Please fill all details')
     } else {
@@ -159,6 +162,10 @@ const QuizPage: React.FC = () => {
   const CustomInput = forwardRef((props: TextFieldProps, ref) => {
     return <TextField fullWidth {...props} inputRef={ref} autoComplete='off' style={{ backgroundColor: 'white' }} />
   })
+
+  useEffect(() => {
+    getAllProgramPlans()
+  }, [])
   return (
     <DatePickerWrapper>
       <Container maxWidth='lg' style={{ marginTop: '2rem' }}>
@@ -186,8 +193,9 @@ const QuizPage: React.FC = () => {
               value={programPlanId}
               onChange={e => setProgramPlanId(e.target.value as string)}
             >
-              <MenuItem value='1'>1</MenuItem>
-              <MenuItem value='2'>2</MenuItem>
+              {programPlans?.map((item, index) => (
+                <MenuItem value={item?.program_plan_id}>{item?.program_name}</MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Grid>

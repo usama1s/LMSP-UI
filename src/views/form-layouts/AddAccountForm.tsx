@@ -327,7 +327,7 @@ const AddAccountForm = () => {
               onChange={e => setFormData({ ...formData, password: e.target.value })}
             />
           </Grid>
-          {user?.adminType == 4 && (
+          {user?.admin_type == 4 && (
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth

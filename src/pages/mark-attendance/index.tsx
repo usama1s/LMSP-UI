@@ -25,13 +25,6 @@ type Student = {
   attendence_status: boolean | number
 }
 
-const mockData: Student[] = Array.from({ length: 20 }, (_, index) => ({
-  student_id: index + 1,
-  name: `Student ${index + 1}`,
-  attendence_status: false,
-  id: index + 1
-}))
-
 const AttendancePage: React.FC = () => {
   const { customApiCall } = useAuth()
   const [attendanceData, setAttendanceData] = useState<Student[]>([])
@@ -44,10 +37,6 @@ const AttendancePage: React.FC = () => {
 
   const [selectedProgram, setSelectedProgram] = useState('')
 
-  const fetchDataForDate = (date: Date) => {
-    setAttendanceData(mockData)
-  }
-
   const markAttendance = (studentId: number) => {
     const updatedData = attendanceData.map(student =>
       student.student_id === studentId ? { ...student, attendence_status: !student.attendence_status } : student
@@ -58,7 +47,7 @@ const AttendancePage: React.FC = () => {
 
   const getAllProgramPlans = async () => {
     await customApiCall('get', 'admin/get-all-program_plan').then(r => {
-      setPrograms(r?.result)
+      setPrograms(r)
     })
   }
 
@@ -95,32 +84,48 @@ const AttendancePage: React.FC = () => {
     return <TextField fullWidth {...props} inputRef={ref} autoComplete='off' />
   })
 
+  const fetchStudents = async () => {
+    if (!selectedProgram) {
+      alert('Please select a program to fetch students')
+    } else {
+      await customApiCall('get', `instructor/get-students-by-program-plan/${selectedProgram}`).then(students => {
+        const formattedStudents = students?.map((student, index) => ({
+          id: index + 1,
+          student_id: student.student_id,
+          name: `${student.first_name} ${student.last_name}`,
+          attendence_status: false
+        }))
+        setAttendanceData(formattedStudents)
+      })
+    }
+  }
   const handleSubmit = async () => {
     if (!selectedDate || !attendanceData) {
       alert('Date not selected or students not fetched')
     } else {
       const students = [...attendanceData]
-      students.map((item, index) => {
-        if (item?.attendence_status == true) {
-          item.attendence_status = 1
-        } else {
-          item.attendence_status = 0
-        }
+      students.forEach(item => {
+        item.attendence_status = item.attendence_status ? 1 : 0
       })
-      console.log(students)
-      const formattedDate = selectedDate ? selectedDate.toISOString().split('T')[0] : null
+
+      const formattedDate = new Date(selectedDate)
+      formattedDate.setDate(selectedDate.getDate() + 1) // Fix date issue
+
       const dataToSend = {
-        attendence_date: formattedDate,
+        attendence_date: formattedDate.toISOString().split('T')[0],
         students: students
       }
 
       await customApiCall('post', 'instructor/mark-attendence', dataToSend).then(r => {
         alert(r)
+        // Reset data after submission
+        setAttendanceData([])
+        setSelectedDate(null)
+        setSelectedProgram('')
       })
     }
   }
   useEffect(() => {
-    fetchDataForDate(new Date())
     getAllProgramPlans()
   }, [])
 
@@ -156,7 +161,7 @@ const AttendancePage: React.FC = () => {
                   ))}
               </Select>
             </FormControl>
-            <ButtonStyled component='label' variant='contained' sx={{ marginTop: '1rem' }}>
+            <ButtonStyled component='label' variant='contained' sx={{ marginTop: '1rem' }} onClick={fetchStudents}>
               Fetch Students Data
             </ButtonStyled>
           </div>

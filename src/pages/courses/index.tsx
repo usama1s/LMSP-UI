@@ -5,13 +5,6 @@ import Card from '@mui/material/Card'
 import useAuth from 'src/@core/utils/useAuth'
 import { useRouter } from 'next/router'
 
-type CourseData = {
-  id: number
-  CID: number
-  courseName: string
-  instructorName: string
-}
-
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 70 },
   { field: 'CID', headerName: 'CID', width: 70 },
@@ -21,11 +14,10 @@ const columns: GridColDef[] = [
 
 const Courses: React.FC = () => {
   const router = useRouter()
-  const [courseData, setCourseData] = useState<CourseData[]>([
-    { id: 1, CID: 101, courseName: 'Mathematics', instructorName: 'John Doe' },
-    { id: 2, CID: 102, courseName: 'Physics', instructorName: 'Jane Smith' },
-    { id: 3, CID: 103, courseName: 'History', instructorName: 'Bob Johnson' }
-  ])
+  const { customApiCall } = useAuth()
+
+  const [user, setUser] = useState(null)
+  const [courseData, setCourseData] = useState<[]>([])
   const [selectedProgram, setSelectedProgram] = useState<string>('')
   const [filterOption, setFilterOption] = useState<string>('currentMonth')
 
@@ -37,15 +29,27 @@ const Courses: React.FC = () => {
     setFilterOption(event.target.value as string)
   }
 
+  const getCoursesByUserId = async () => {
+    await customApiCall('get', `student/get-course/${13}`).then(r => {
+      const updatedCourses = r.map((course: any, index) => ({
+        ...r,
+        id: index,
+        CID: course?.course_id,
+        courseName: course?.course_name,
+        instructorName: course?.first_name + ' ' + course?.last_name
+      }))
+      console.log(updatedCourses)
+      setCourseData(updatedCourses)
+    })
+  }
   useEffect(() => {
-    // Dummy data, you can replace this with your API call
-    const dummyData: CourseData[] = [
-      { id: 1, CID: 101, courseName: 'Mathematics', instructorName: 'John Doe' },
-      { id: 2, CID: 102, courseName: 'Physics', instructorName: 'Jane Smith' },
-      { id: 3, CID: 103, courseName: 'History', instructorName: 'Bob Johnson' }
-    ]
+    var user = localStorage.getItem('user')
 
-    setCourseData(dummyData)
+    if (user && user != undefined) {
+      var loggedInUser = JSON.parse(user)
+      setUser(loggedInUser)
+    }
+    getCoursesByUserId()
   }, [selectedProgram, filterOption])
 
   return (

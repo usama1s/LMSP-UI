@@ -87,7 +87,7 @@ const TeacherAssignmentPage: React.FC = () => {
 
   const getAllProgramPlans = async () => {
     await customApiCall('get', 'admin/get-all-program_plan').then(r => {
-      setPrograms(r?.result)
+      setPrograms(r)
     })
   }
 
@@ -103,8 +103,23 @@ const TeacherAssignmentPage: React.FC = () => {
     ) {
       alert('Please fill all details')
     } else {
-      const assignmentData = {}
-      // await customApiCall('post', '/instructor/add-assignment')
+      const assignmentData = {
+        program_plan_id: assignmentDetails.program_plan_id,
+        assignment_date: assignmentDetails.dueDate,
+        assignment_file: assignmentDetails.pdfFile,
+        assignment_instruction: assignmentDetails.instructions,
+        assignment_title: assignmentDetails.title
+      }
+      await customApiCall('post', '/instructor/add-assignment', assignmentData).then(r => {
+        alert(r)
+        setAssignmentDetails({
+          title: '',
+          dueDate: '',
+          pdfFile: null as string | null,
+          instructions: '',
+          program_plan_id: ''
+        })
+      })
       console.log(assignmentDetails)
     }
   }
