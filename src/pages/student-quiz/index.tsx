@@ -17,16 +17,12 @@ const StudentQuizPage: React.FC = () => {
   const [user, setUser] = useState(null)
 
   const getQuizes = async () => {
+    console.log('Quizes', user?.student_id, id)
+
     await customApiCall('get', `student/get-quiz/${user?.student_id}/${id}`).then(r => {
       setQuizes(r?.quizData)
     })
   }
-  // const quizzes: Quiz[] = [
-  //   { id: 1, title: 'Quiz 1', courseName: 'Course A' },
-  //   { id: 2, title: 'Quiz 2', courseName: 'Course B' },
-  //   { id: 3, title: 'Quiz 3', courseName: 'Course C' },
-  //   { id: 4, title: 'Quiz 4', courseName: 'Course D' }
-  // ]
 
   useEffect(() => {
     var loggedInUser = localStorage.getItem('user')

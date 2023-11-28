@@ -62,7 +62,7 @@ interface FormData {
   registrationId?: string
 }
 
-const AddAccountForm = () => {
+const AddAccountForm = ({ selectedUserToEdit }: any) => {
   // ** hooks call
   const { customApiCall } = useAuth()
   // ** State
@@ -88,6 +88,47 @@ const AddAccountForm = () => {
     registrationId: ''
   })
   const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    if (selectedUserToEdit) {
+      const {
+        first_name,
+        last_name,
+        email,
+        marital_status,
+        country,
+        organization,
+        designation,
+        qualification,
+        register_date,
+        admin_types,
+        register_id,
+        profile_image_type,
+        profile_image
+      } = selectedUserToEdit
+
+      setFormData({
+        firstName: first_name,
+        lastName: last_name,
+        email: email,
+        phoneNumber: '', // Add corresponding field if available
+        password: '', // Add corresponding field if available
+        maritalStatus: marital_status,
+        country: country,
+        organization: organization,
+        designation: designation,
+        qualification: qualification,
+        registrationDate: new Date(register_date),
+        adminType: admin_types || [],
+        status: 'active', // Add corresponding field if available
+        profileImage: profile_image,
+        registrationId: register_id
+      })
+
+      setImageFile(profile_image)
+    }
+  }, [selectedUserToEdit])
+
   useEffect(() => {
     var loggedInUser = localStorage.getItem('user')
     if (loggedInUser) {
@@ -138,6 +179,7 @@ const AddAccountForm = () => {
   }
 
   const handleSaveChanges = async () => {
+    const isUpdateOperation = !!selectedUserToEdit
     const isAnyFieldEmpty = Object.values(formData).some(field => {
       if (user?.admin_type == 1 && field == 'registrationId' && field == 'adminType') {
         return field
@@ -145,10 +187,6 @@ const AddAccountForm = () => {
         return !field
       }
     })
-    // if (isAnyFieldEmpty) {
-    //   setErrorMessage('Please fill in all required fields before submitting the form.')
-    //   setOpenAlert(true)
-    // } else
     if (!isValidEmail(formData.email)) {
       setErrorMessage('Invalid email address. Please provide a valid email.')
       setOpenAlert(true)
@@ -180,8 +218,11 @@ const AddAccountForm = () => {
           profile_image_type: 'image/jpeg',
           profile_image: formData.profileImage
         }
-
-        const res = await customApiCall('post', 'auth/register', requestData).then(r => {
+        let apiUrl = 'auth/register'
+        if (isUpdateOperation) {
+          apiUrl = 'auth/update-user/' + selectedUserToEdit.id
+        }
+        const res = await customApiCall('post', apiUrl, requestData).then(r => {
           alert(r?.message)
           setFormData({
             firstName: '',
