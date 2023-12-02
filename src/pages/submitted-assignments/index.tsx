@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Container,
   Typography,
@@ -23,32 +23,21 @@ interface Student {
   id: number
   name: string
   regId: string
-  submittedFile: string // Base64 encoded submitted file
+  submittedFile: string
   grade: number | null
 }
 
 const SubmittedAssignmentsPage: React.FC = () => {
   const { customApiCall } = useAuth()
   const [selectedCourse, setSelectedCourse] = useState<number | null>(null)
-  const [students, setStudents] = useState<Student[]>([]) // Replace with actual student data
-  const [courses, setCourses] = useState([])
-  // Replace with actual course data
-  //   const courses: Course[] = [
-  //     { id: 1, name: 'Course 1' },
-  //     { id: 2, name: 'Course 2' }
-  //     // Add more courses as needed
-  //   ]
-
+  const [students, setStudents] = useState<Student[]>([])
+  const [programs, setPrograms] = useState([])
   const handleCourseChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const courseId = event.target.value as number
     setSelectedCourse(courseId)
-
-    // Fetch students for the selected course, replace with your actual data fetching logic
-    // For simplicity, I'm using static data here
     const studentsForCourse: Student[] = [
       { id: 1, name: 'Student 1', regId: 'REG001', submittedFile: '...', grade: null },
       { id: 2, name: 'Student 2', regId: 'REG002', submittedFile: '...', grade: null }
-      // Add more students as needed
     ]
 
     setStudents(studentsForCourse)
@@ -61,16 +50,27 @@ const SubmittedAssignmentsPage: React.FC = () => {
   }
 
   const handleSubmitGrades = () => {
-    // Implement your logic to submit grades to the backend
     console.log('Grades submitted:', students)
   }
 
-  const getCourses = async () => {
-    await customApiCall('get', 'admin/get-all-courses').then(r => {
-      console.log('courses', r)
-      setCourses(r)
+  // const getCourses = async () => {
+  //   await customApiCall('get', 'admin/get-all-courses').then(r => {
+  //     console.log('courses', r)
+  //     setCourses(r)
+  //   })
+  // }
+
+  const getAllProgramPlans = async () => {
+    await customApiCall('get', 'admin/get-all-program_plan').then(r => {
+      console.log('programs', r)
+      setPrograms(r)
     })
   }
+
+  useEffect(() => {
+    getAllProgramPlans()
+    // getCourses()
+  }, [])
   return (
     <Container maxWidth='lg' style={{ marginTop: '2rem', height: '100vh', backgroundColor: 'white' }}>
       <Typography variant='h4' gutterBottom>
@@ -79,11 +79,11 @@ const SubmittedAssignmentsPage: React.FC = () => {
 
       <Select value={selectedCourse} onChange={handleCourseChange} style={{ marginBottom: '1rem' }}>
         <MenuItem value={null} disabled>
-          Select Course
+          Select Program
         </MenuItem>
-        {courses.map(course => (
-          <MenuItem key={course.course_id} value={course.id}>
-            {course.course_name}
+        {programs.map(course => (
+          <MenuItem key={course.program_plan_id} value={course.program_plan_id}>
+            {course.program_name}
           </MenuItem>
         ))}
       </Select>

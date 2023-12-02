@@ -116,7 +116,6 @@ const QuizPage: React.FC = () => {
     if (!quizDaate || !programPlanId || questions.length == 0) {
       alert('Please fill all details')
     } else {
-      console.log('In else')
       const requestData = {
         program_plan_id: programPlanId,
         quiz_date: quizDaate.getDate() + '/' + (parseInt(quizDaate.getMonth()) + 1) + '/' + quizDaate.getFullYear(),
@@ -126,7 +125,7 @@ const QuizPage: React.FC = () => {
       await customApiCall('post', '/instructor/add-quiz', requestData)
         .then(r => {
           console.log(r)
-          alert(r?.message)
+          alert(r)
           handleCancel()
         })
         .catch(err => {

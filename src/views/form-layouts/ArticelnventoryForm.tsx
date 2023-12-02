@@ -1,5 +1,5 @@
 // ** React Imports
-import { ChangeEvent, forwardRef, MouseEvent, useState, ElementType, SyntheticEvent, useEffect } from 'react'
+import { ChangeEvent, forwardRef, useState, ElementType, SyntheticEvent, useEffect } from 'react'
 
 // ** MUI Imports
 import Card from '@mui/material/Card'
@@ -11,14 +11,12 @@ import CardHeader from '@mui/material/CardHeader'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import CardActions from '@mui/material/CardActions'
-import { SelectChangeEvent } from '@mui/material/Select'
 import Box from '@mui/material/Box'
 import styled from '@emotion/styled'
 import useAuth from 'src/@core/utils/useAuth'
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
 import dynamic from 'next/dynamic'
-import { Quill } from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 
 interface FormData {
@@ -52,10 +50,7 @@ const modules = {
     matchVisual: false
   }
 }
-/*
- * Quill editor formats
- * See https://quilljs.com/docs/formats/
- */
+
 const formats = [
   'header',
   'font',
@@ -76,7 +71,7 @@ const formats = [
 var htmlCode = null
 var htmlCodeFailureReson = null
 
-const ArticleInventoryForm = () => {
+const ArticleInventoryForm = ({ selectedArticleToEdit }: any) => {
   const { customApiCall } = useAuth()
   const [user, setUser] = useState(null)
   // ** States
@@ -103,6 +98,12 @@ const ArticleInventoryForm = () => {
     if (loggedIn) {
       var parsedUser = JSON.parse(loggedIn)
       setUser(parsedUser)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (selectedArticleToEdit) {
+      console.log(selectedArticleToEdit)
     }
   }, [])
 
@@ -199,21 +200,31 @@ const ArticleInventoryForm = () => {
       title: formData.title,
       description: htmlCode,
       failure_reason: htmlCodeFailureReson,
-      admin_id: user?.id,
+      admin_id: user?.admin_id,
       expiry: formData.expiry?.toISOString().slice(0, 19).replace('T', ' '),
       induction: formData.induction?.toISOString().slice(0, 19).replace('T', ' '),
-      make: formData.make,
-      model: formData.model,
-      ...Object.fromEntries(
-        await Promise.all(
+      asset: {
+        make: formData.make,
+        model: formData.model
+      },
+      attachments: {
+        video_file: videoFile ? await readFileAsBase64(videoFile) : null,
+        info_file: infoFile ? await readFileAsBase64(infoFile) : null,
+        images: await Promise.all(
           imageFiles.map(async (file, index) => {
             const base64Data = await readFileAsBase64(file)
-            return [`image${index + 1}`, base64Data]
+            return [`image_${index + 1}`, base64Data]
           })
         )
-      ),
-      video_file: videoFile ? await readFileAsBase64(videoFile) : null,
-      information_file: infoFile ? await readFileAsBase64(infoFile) : null
+      }
+      // ...Object.fromEntries(
+      //   await Promise.all(
+      //     imageFiles.map(async (file, index) => {
+      //       const base64Data = await readFileAsBase64(file)
+      //       return [`image${index + 1}`, base64Data]
+      //     })
+      //   )
+      // )
     }
 
     const res = await customApiCall('post', 'admin/add-item', dataForApiCall).then(r => {

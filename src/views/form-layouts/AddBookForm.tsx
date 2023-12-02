@@ -62,7 +62,7 @@ interface FormData {
   registrationId?: string
 }
 
-const AddAccountForm = ({ selectedUserToEdit }: any) => {
+const AddBookForm = ({ selectedUserToEdit }: any) => {
   // ** hooks call
   const { customApiCall } = useAuth()
   // ** State
@@ -289,15 +289,15 @@ const AddAccountForm = ({ selectedUserToEdit }: any) => {
         <Grid container spacing={7}>
           <Grid item xs={12} sx={{ marginTop: 4.8, marginBottom: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <ImgStyled src={imgFile || '/images/avatars/1.png'} alt='Profile Pic' />
+              <ImgStyled src={imgFile} alt='Upload book' />
               <Box>
                 <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
-                  Upload Photo
+                  Upload Book
                   <input
                     hidden
                     type='file'
                     onChange={onChange}
-                    accept='image/png, image/jpeg'
+                    accept='application/pdf'
                     id='account-settings-upload-image'
                   />
                 </ButtonStyled>
@@ -324,8 +324,8 @@ const AddAccountForm = ({ selectedUserToEdit }: any) => {
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              label='First Name'
-              placeholder='Ali'
+              label='Book Title'
+              placeholder='Shadows'
               value={formData.firstName}
               onChange={e => setFormData({ ...formData, firstName: e.target.value })}
             />
@@ -333,7 +333,7 @@ const AddAccountForm = ({ selectedUserToEdit }: any) => {
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              label='Last Name'
+              label='Author Name'
               placeholder='Hassan'
               value={formData.lastName}
               onChange={e => setFormData({ ...formData, lastName: e.target.value })}
@@ -342,166 +342,24 @@ const AddAccountForm = ({ selectedUserToEdit }: any) => {
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              type='email'
-              label='Email'
-              placeholder='johnDoe@example.com'
+              type='text'
+              label='Publisher Name'
+              placeholder='Ali'
               value={formData.email}
               onChange={e => setFormData({ ...formData, email: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              type='number'
-              label='Phone Number'
-              placeholder='03155776489'
-              value={formData.phoneNumber}
-              onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              type='password'
-              label='Password'
-              value={formData.password}
-              onChange={e => setFormData({ ...formData, password: e.target.value })}
-            />
-          </Grid>
-          {user?.admin_types.includes(4) && (
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                type='text'
-                label='Registration ID'
-                value={formData.registrationId}
-                onChange={e => setFormData({ ...formData, registrationId: e.target.value })}
-              />
-            </Grid>
-          )}
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel>Marital Status</InputLabel>
-              <Select
-                label='Martial Status'
-                defaultValue='single'
-                onChange={e => setFormData({ ...formData, maritalStatus: e.target.value as string })}
-              >
-                <MenuItem value='single'>Single</MenuItem>
-                <MenuItem value='married'>Married</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel>Country</InputLabel>
-              <Select
-                label='Country'
-                defaultValue='pakistan'
-                onChange={e => setFormData({ ...formData, country: e.target.value as string })}
-              >
-                <MenuItem value='pakistan'>Pakistan</MenuItem>
-                <MenuItem value='Qatar'>Qatar</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              type='text'
-              label='Organization'
-              placeholder='Signal'
-              value={formData.organization}
-              onChange={e => setFormData({ ...formData, organization: e.target.value })}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              type='text'
-              label='Designation'
-              placeholder='Captain'
-              value={formData.designation}
-              onChange={e => setFormData({ ...formData, designation: e.target.value })}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              type='text'
-              label='Qualification'
-              placeholder='Masters'
-              value={formData.qualification}
-              onChange={e => setFormData({ ...formData, qualification: e.target.value })}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <DatePicker
-              selected={formData.registrationDate}
-              showYearDropdown
-              showMonthDropdown
-              placeholderText='MM-DD-YYYY'
-              customInput={<CustomInput label={'Registration Date'} />}
-              id='form-layouts-separator-date'
-              onChange={(date: Date) => {
-                setFormData({
-                  ...formData,
-                  registrationDate: date
-                })
-              }}
-            />
-          </Grid>
-          {user?.admin_types.includes(1) && (
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel>Admin Type</InputLabel>
-                <Select
-                  label='Admin Type'
-                  value={formData.adminType} // Use value prop to manage selected values
-                  multiple
-                  onChange={e => setFormData({ ...formData, adminType: e.target.value as string[] })}
-                  renderValue={selected =>
-                    (selected as string[])
-                      .map(value => {
-                        const option = adminTypeOptions.find(opt => opt.value === value)
-                        return option ? option.label : value
-                      })
-                      .join(', ')
-                  }
-                >
-                  {adminTypeOptions.map(option => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-          )}
 
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel>Status</InputLabel>
-              <Select
-                label='Status'
-                defaultValue='active'
-                onChange={e => setFormData({ ...formData, status: e.target.value as string })}
-              >
-                <MenuItem value='active'>Active</MenuItem>
-                <MenuItem value='inactive'>Inactive</MenuItem>
-                <MenuItem value='pending'>Pending</MenuItem>
-              </Select>
-            </FormControl>
+            <TextField
+              fullWidth
+              type='text'
+              label='Keywords'
+              placeholder='Enter keeywords seperated by comma'
+              value={formData.registrationId}
+              onChange={e => setFormData({ ...formData, registrationId: e.target.value })}
+            />
           </Grid>
-
-          {openAlert && (
-            <Grid item xs={12}>
-              <Alert severity='error' onClose={() => setOpenAlert(false)}>
-                <AlertTitle>Error</AlertTitle>
-                {errorMessage}
-              </Alert>
-            </Grid>
-          )}
 
           <Grid item xs={12}>
             <Button variant='contained' sx={{ marginRight: 3.5 }} onClick={handleSaveChanges}>
@@ -517,4 +375,4 @@ const AddAccountForm = ({ selectedUserToEdit }: any) => {
   )
 }
 
-export default AddAccountForm
+export default AddBookForm

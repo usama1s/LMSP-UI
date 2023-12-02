@@ -18,7 +18,14 @@ import { FormControl, InputLabel } from '@mui/material'
 import ChevronUp from 'mdi-material-ui/ChevronUp'
 import ChevronDown from 'mdi-material-ui/ChevronDown'
 
-const CardWithCollapse = ({ onCheckboxChange, onInstructorChange, name, description, instructors }) => {
+const CardWithCollapse = ({
+  onCheckboxChange,
+  onInstructorChange,
+  name,
+  description,
+  instructors,
+  showCheckbox = true
+}) => {
   // State
   const [collapse, setCollapse] = useState(false)
   const [highlighted, setHighlighted] = useState(false)
@@ -40,11 +47,14 @@ const CardWithCollapse = ({ onCheckboxChange, onInstructorChange, name, descript
 
   return (
     <Card sx={{ border: highlighted ? '2px solid #2196F3' : 'none', position: 'relative' }}>
-      <Checkbox
-        checked={highlighted}
-        onChange={handleCheckboxChange}
-        sx={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
-      />
+      {showCheckbox && (
+        <Checkbox
+          checked={highlighted}
+          onChange={handleCheckboxChange}
+          sx={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
+        />
+      )}
+
       {/* <CardMedia sx={{ height: '14.5625rem' }} image='/images/cards/paper-boat.png' /> */}
 
       <CardContent>

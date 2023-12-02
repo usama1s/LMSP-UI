@@ -18,11 +18,11 @@ const Dashboard = () => {
     }
   }, [])
 
-  if (user?.role == 1 && user?.admin_type == 1) {
+  if (user?.role == 1 && user?.admin_types.includes(1)) {
     return <AddAccount />
-  } else if (user?.role == 1 && user?.admin_type == 5) {
+  } else if (user?.role == 1 && user?.admin_types.includes(5)) {
     return <AddProgram />
-  } else if (user?.role == 1 && user?.admin_type == 3) {
+  } else if (user?.role == 1 && user?.admin_types.includes(3)) {
     //Inventory Incharge
     return <ArticleInventory />
   } else if (user?.role == 2) {

@@ -68,7 +68,8 @@ const StudentQuizPage: React.FC = () => {
       quiz_id: id,
       total_marks: questions.length,
       obtained_marks: obtained,
-      grade: grade
+      grade: grade,
+      percentage: (obtainedMarks / totalMarks) * 100
     }
 
     await customApiCall('post', 'student/submit-quiz', dataToSend).then(() => {
@@ -76,51 +77,55 @@ const StudentQuizPage: React.FC = () => {
     })
   }
 
-  // useEffect(() => {
-  //   // const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-  //   //   if (questions.some(q => q.selectedOption === null)) {
-  //   //     const message = 'You have unsaved changes. Are you sure you want to leave?'
-  //   //     event.returnValue = message
+  const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    if (questions.some(q => q.selectedOption === null)) {
+      const message = 'You have unsaved changes. Are you sure you want to leave?'
+      event.returnValue = message
+      return message
+    }
+  }
 
-  //   //     return message
-  //   //   }
-  //   // }
+  const handleRouteChange = (url: string) => {
+    if (questions.some(q => q.selectedOption === null)) {
+      const confirmNavigation = window.confirm(
+        `You can't open the quiz again if you leave. Are you sure you want to leave?`
+      )
+      if (!confirmNavigation) {
+        router.events.emit('routeChangeError')
+        throw 'routeChange aborted.'
+      } else {
+        window.removeEventListener('beforeunload', handleBeforeUnload)
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
+        handleSubmit()
+      }
+    }
+  }
 
-  //   const handleRouteChange = (url: string) => {
-  //     if (questions.some(q => q.selectedOption === null)) {
-  //       const confirmNavigation = window.confirm(
-  //         `You can't open the quiz again if you leave. Are you sure you want to leave?`
-  //       )
-  //       if (!confirmNavigation) {
-  //         router.events.emit('routeChangeError')
-  //         throw 'routeChange aborted.'
-  //       } else {
-  //         handleSubmit()
-  //       }
-  //     }
-  //   }
-  //   const isPageVisible = () => !document.hidden
-  //   const handleVisibilityChange = () => {
-  //     if (questions.some(q => q.selectedOption === null && !isPageVisible())) {
-  //       const confirmNavigation = window.confirm('You have unsaved changes. Are you sure you want to leave?')
-  //       if (!confirmNavigation) {
-  //         router.events.emit('routeChangeError')
-  //         throw 'routeChange aborted.'
-  //       } else {
-  //         handleSubmit()
-  //       }
-  //     }
-  //   }
+  const handleVisibilityChange = () => {
+    if (questions.some(q => q.selectedOption === null && !document.hidden)) {
+      const confirmNavigation = window.confirm('You have unsaved changes. Are you sure you want to leave?')
+      if (!confirmNavigation) {
+        router.events.emit('routeChangeError')
+        throw 'routeChange aborted.'
+      } else {
+        router.events.off('beforeHistoryChange', handleRouteChange)
+        window.removeEventListener('beforeunload', handleBeforeUnload)
+        handleSubmit()
+      }
+    }
+  }
 
-  //   // router.events.on('beforeHistoryChange', handleRouteChange)
-  //   // window.addEventListener('beforeunload', handleBeforeUnload)
-  //   // document.addEventListener('visibilitychange', handleVisibilityChange)
-  //   return () => {
-  //     //   router.events.off('beforeHistoryChange', handleRouteChange)
-  //     //   window.removeEventListener('beforeunload', handleBeforeUnload)
-  //     // document.removeEventListener('visibilitychange', handleVisibilityChange)
-  //   }
-  // }, [questions, router])
+  useEffect(() => {
+    router.events.on('beforeHistoryChange', handleRouteChange)
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      router.events.off('beforeHistoryChange', handleRouteChange)
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [questions, router])
 
   useEffect(() => {
     var user = localStorage.getItem('user')
@@ -204,12 +209,6 @@ const StudentQuizPage: React.FC = () => {
           Submit
         </Button>
       </Grid>
-
-      {/* <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity='info'>
-          Result: Obtained Marks: {obtainedMarks}/{totalMarks}
-        </Alert>
-      </Snackbar> */}
       <SuccessModal
         open={showSuccessModal}
         onClose={() => {

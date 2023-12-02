@@ -20,6 +20,7 @@ import Detail from 'mdi-material-ui/Details'
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
+import { Paper } from '@mui/material'
 
 const navigation = (): VerticalNavItemsType => {
   const router = useRouter()
@@ -52,15 +53,20 @@ const navigation = (): VerticalNavItemsType => {
         title: 'Mark Attendance',
         icon: Message,
         path: '/mark-attendance'
+      },
+      {
+        title: 'Mark Assignments',
+        icon: Message,
+        path: '/submitted-assignments'
       }
     ]
   } else if (user?.role == 3) {
     return [
-      {
-        title: 'Profile',
-        icon: AddUser,
-        path: '/account-settings'
-      },
+      // {
+      //   title: 'Profile',
+      //   icon: AddUser,
+      //   path: '/account-settings'
+      // },
       {
         title: 'Courses',
         icon: Message,
@@ -82,25 +88,25 @@ const navigation = (): VerticalNavItemsType => {
         path: '/attendance-details'
       }
     ]
-  } else if (user?.role == 1 && user?.admin_type == 1) {
+  } else if (user?.role == 1 && user?.admin_types.includes(1)) {
     return [
       {
         title: 'Accounts',
         icon: AddUser,
         path: '/'
-      },
+      }
       // {
       //   title: 'Article Inventory',
       //   icon: Article,
       //   path: '/article-inventory'
       // }
-      {
-        title: 'Profile',
-        icon: AddUser,
-        path: '/account-settings'
-      }
+      // {
+      //   title: 'Profile',
+      //   icon: AddUser,
+      //   path: '/account-settings'
+      // }
     ]
-  } else if (user?.role == 1 && user?.admin_type == 2) {
+  } else if (user?.role == 1 && user?.admin_types.includes(2)) {
     return [
       {
         title: 'Add Account',
@@ -111,14 +117,14 @@ const navigation = (): VerticalNavItemsType => {
         title: 'Schedule Class',
         icon: Message,
         path: '/create-class'
-      },
-      {
-        title: 'Profile',
-        icon: AddUser,
-        path: '/account-settings'
       }
+      // {
+      //   title: 'Profile',
+      //   icon: AddUser,
+      //   path: '/account-settings'
+      // }
     ]
-  } else if (user?.role == 1 && user?.admin_type == 4) {
+  } else if (user?.role == 1 && user?.admin_types.includes(4)) {
     return [
       {
         title: 'Add Account',
@@ -129,12 +135,12 @@ const navigation = (): VerticalNavItemsType => {
         title: 'Enroll Student',
         icon: Message,
         path: '/enroll-student'
-      },
-      {
-        title: 'Profile',
-        icon: AddUser,
-        path: '/account-settings'
       }
+      // {
+      //   title: 'Profile',
+      //   icon: AddUser,
+      //   path: '/account-settings'
+      // }
       // {
       //   title: 'Quiz',
       //   icon: Message,
@@ -192,7 +198,7 @@ const navigation = (): VerticalNavItemsType => {
   //     }
   //   ]
   // }
-  else if (user?.role == 1 && user?.admin_type == 5) {
+  else if (user?.role == 1 && user?.admin_types.includes(5)) {
     return [
       {
         title: 'Add Program',
@@ -203,15 +209,15 @@ const navigation = (): VerticalNavItemsType => {
         title: 'Add Course Details',
         icon: Book,
         path: '/course-details'
-      },
-
-      {
-        title: 'Profile',
-        icon: AddUser,
-        path: '/account-settings'
       }
+
+      // {
+      //   title: 'Profile',
+      //   icon: AddUser,
+      //   path: '/account-settings'
+      // }
     ]
-  } else if (user?.role == 1 && user?.admin_type == 3) {
+  } else if (user?.role == 1 && user?.admin_types.includes(3)) {
     return [
       {
         title: 'Article Inventory',
@@ -219,10 +225,16 @@ const navigation = (): VerticalNavItemsType => {
         path: '/article-inventory'
       },
       {
-        title: 'Profile',
-        icon: AddUser,
-        path: '/account-settings'
+        title: 'Library',
+        icon: Book,
+        path: '/library'
       }
+
+      // {
+      //   title: 'Profile',
+      //   icon: AddUser,
+      //   path: '/account-settings'
+      // }
     ]
   }
   return [

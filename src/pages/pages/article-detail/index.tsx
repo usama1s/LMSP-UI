@@ -30,6 +30,7 @@ interface Details {
   video?: string
   pdf: string
   file: string
+  image: string
 }
 
 const DetailPage: React.FC = () => {
@@ -54,7 +55,8 @@ const DetailPage: React.FC = () => {
         ],
         video: '/images/dummy.mp4',
         pdf: `https://drive.google.com/file/d/1anRzwK5ZJFBHAYV334i3ERvrNJdU_sh8/view?usp=sharing`,
-        file: `https://drive.google.com/file/d/1anRzwK5ZJFBHAYV334i3ERvrNJdU_sh8/view?usp=sharing`
+        file: `https://drive.google.com/file/d/1anRzwK5ZJFBHAYV334i3ERvrNJdU_sh8/view?usp=sharing`,
+        image: '/images/dummyImage.jpeg'
       }
 
       setDetails(mockData)
@@ -67,13 +69,7 @@ const DetailPage: React.FC = () => {
 
   const renderCarousel = () => {
     if (details && details.images && details.images.length > 0) {
-      return (
-        <Carousel>
-          {details.images.map((image, index) => (
-            <img key={index} src={image} alt={`Image ${index + 1}`} style={{ width: '100%' }} />
-          ))}
-        </Carousel>
-      )
+      return <img src={details.image} alt={`nonex`} style={{ width: '50%', height: '50%', margin: '0 25%' }} />
     }
 
     return <Typography>No images available</Typography>
@@ -146,12 +142,12 @@ const DetailPage: React.FC = () => {
             {renderVideo()}
             {renderPDF()}
             <CardContent>
-              <Typography variant='h4' gutterBottom>
+              {/* <Typography variant='h4' gutterBottom>
                 {details.title}
               </Typography>
               <Typography variant='body1' paragraph>
                 {details.description}
-              </Typography>
+              </Typography> */}
               {renderFile()}
             </CardContent>
           </>

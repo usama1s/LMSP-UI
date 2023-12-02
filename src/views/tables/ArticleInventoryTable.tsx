@@ -15,6 +15,8 @@ import styled from '@emotion/styled'
 import { Button, ButtonProps } from '@mui/material'
 import useAuth from 'src/@core/utils/useAuth'
 import QRCode from 'qrcode'
+import EditModal from '../components/EditArticleModal'
+import axios from 'axios'
 
 interface Column {
   id: 'ID' | 'title' | 'make' | 'model' | 'expiryDate' | 'inductionDate' | 'downloadQr'
@@ -52,7 +54,12 @@ const ArticleInventoryTable = () => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
   const [rows, setRows] = useState([])
   const [qr, setQr] = useState<string | null>(null)
+  const [userIp, setUserIp] = useState(null)
+  const [selectedArticleForEdit, setSelectedArticleForEdit] = useState(false)
 
+  const handleEdit = () => {
+    setSelectedArticleForEdit(true)
+  }
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
   }
@@ -111,8 +118,8 @@ const ArticleInventoryTable = () => {
     })
   }
 
-  const downloadQRCode = (id: any, title: any) => {
-    const qrCodeText = `http://localhost:3000/pages/article-detail/?id=${id}`
+  const downloadQRCode = async (id: any, title: any) => {
+    const qrCodeText = `http://192.168.18.127:3000/pages/article-detail/?id=${id}`
 
     QRCode?.toDataURL(
       qrCodeText,
@@ -161,23 +168,41 @@ const ArticleInventoryTable = () => {
                     const value = row[column.id]
                     console.log(row.ID)
                     return (
-                      <TableCell key={column.id} align={column.align}>
-                        {/* {column.format && typeof value === 'number' ? column.format(value) : value} */}
-                        {column.id === 'downloadQr' ? (
-                          <ButtonStyled
-                            variant='contained'
-                            color='primary'
-                            onClick={() => {
-                              downloadQRCode(row?.ID, row?.title)
-                              // alert('In Progress')
-                            }}
-                          >
-                            Download Qr
-                          </ButtonStyled>
-                        ) : (
-                          value
-                        )}
-                      </TableCell>
+                      <>
+                        <TableCell key={column.id} align={column.align}>
+                          {/* {column.format && typeof value === 'number' ? column.format(value) : value} */}
+                          {column.id === 'downloadQr' ? (
+                            <>
+                              <ButtonStyled
+                                variant='contained'
+                                color='primary'
+                                onClick={() => {
+                                  downloadQRCode(row?.ID, row?.title)
+                                  // alert('In Progress')
+                                }}
+                              >
+                                Download Qr
+                              </ButtonStyled>
+                              <ButtonStyled
+                                variant='contained'
+                                color='primary'
+                                onClick={() => {
+                                  setSelectedArticleForEdit(true)
+                                }}
+                                sx={{ marginLeft: 3 }}
+                              >
+                                Edit
+                              </ButtonStyled>
+
+                              {/* <ButtonStyled variant='contained' color='error' onClick={() => {}} sx={{ marginLeft: 3 }}>
+                                Delete
+                              </ButtonStyled> */}
+                            </>
+                          ) : (
+                            value
+                          )}
+                        </TableCell>
+                      </>
                     )
                   })}
                 </TableRow>
@@ -186,6 +211,9 @@ const ArticleInventoryTable = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      {selectedArticleForEdit && (
+        <EditModal selectedArticleForEdit={selectedArticleForEdit} onClose={() => setSelectedArticleForEdit(false)} />
+      )}
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component='div'

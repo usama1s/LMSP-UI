@@ -14,7 +14,7 @@ import CardActions from '@mui/material/CardActions'
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
 import CardWithCollapse from '../cards/CardWithCollapse'
-
+import EditModal from '../components/EditArticleModal'
 import useAuth from 'src/@core/utils/useAuth'
 
 interface FormData {
@@ -23,7 +23,7 @@ interface FormData {
   endDate: Date | null
 }
 
-const AddProgramForm = () => {
+const AddProgramForm = ({ editedProgram, setEditModalOpen, setAllPrograms }: any) => {
   const { customApiCall } = useAuth()
   // ** States
   const [date, setDate] = useState<Date | null | undefined>(null)
@@ -37,6 +37,26 @@ const AddProgramForm = () => {
   })
   const [courses, setCourses] = useState([])
   const [instructors, setInstructors] = useState([])
+
+  useEffect(() => {
+    // If editedProgram is provided, set the form fields
+    if (editedProgram) {
+      setFormData({
+        programName: editedProgram.program_name,
+        startDate: new Date(editedProgram.start_date),
+        endDate: new Date(editedProgram.end_date)
+      })
+
+      // Set the courseData based on editedProgram's courses
+      setCourseData(
+        editedProgram.courses.map((course: any) => ({
+          course_id: course.course_id,
+          instructor_id: course.instructor_id
+        }))
+      )
+    }
+  }, [editedProgram])
+
   const handleSave = async () => {
     if (courseData.length === 0) {
       alert('Error: At least one course must be selected.')
@@ -200,7 +220,7 @@ const AddProgramForm = () => {
             Submit
           </Button>
           <Button size='large' color='secondary' variant='outlined' onClick={reset}>
-            Cancel
+            Reset
           </Button>
         </CardActions>
       </form>
