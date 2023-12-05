@@ -177,25 +177,6 @@ const ArticleInventoryForm = ({ selectedArticleToEdit }: any) => {
     }
   }
   const handleSave = async () => {
-    // const dataForApiCall = new FormData()
-    // imageFiles.map((item, index) => {
-    //   dataForApiCall.append(`image_${index + 1}`, item)
-    // })
-    // dataForApiCall.append('description', htmlCode)
-    // dataForApiCall.append('failure_reason', htmlCodeFailureReson)
-
-    // dataForApiCall.append('admin_id', '1')
-    // dataForApiCall.append('video_file', videoFile)
-    // dataForApiCall.append('information_file', infoFile)
-    // dataForApiCall.append('expiry', formData.expiry?.toISOString().slice(0, 19).replace('T', ' '))
-    // dataForApiCall.append('induction', formData.induction?.toISOString().slice(0, 19).replace('T', ' '))
-
-    // Object.entries(formData).forEach(([key, value]) => {
-    //   if (!['imageFiles', 'videoFile', 'infoFile', 'expiry', 'induction', 'description'].includes(key)) {
-    //     dataForApiCall.append(key, value as string)
-    //   }
-    // })
-
     const dataForApiCall = {
       title: formData.title,
       description: htmlCode,
@@ -217,14 +198,6 @@ const ArticleInventoryForm = ({ selectedArticleToEdit }: any) => {
           })
         )
       }
-      // ...Object.fromEntries(
-      //   await Promise.all(
-      //     imageFiles.map(async (file, index) => {
-      //       const base64Data = await readFileAsBase64(file)
-      //       return [`image${index + 1}`, base64Data]
-      //     })
-      //   )
-      // )
     }
 
     const res = await customApiCall('post', 'admin/add-item', dataForApiCall).then(r => {
@@ -362,55 +335,23 @@ const ArticleInventoryForm = ({ selectedArticleToEdit }: any) => {
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              {/* <TextField
-                fullWidth
-                type='text'
-                multiline
-                label='Description'
-                placeholder='Description'
-                rows={4}
-                value={formData.description}
-                onChange={e =>
-                  setFormData({
-                    ...formData,
-                    description: e.target.value
-                  })
-                }
-              /> */}
               <QuillNoSSRWrapper
                 theme='snow'
                 modules={modules}
                 formats={formats}
                 placeholder='Description'
                 onChange={e => {
-                  // console.log(e)
                   htmlCode = e
                 }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              {/* <TextField
-                fullWidth
-                type='text'
-                multiline
-                label='Failure Reason'
-                placeholder='Failure Reason'
-                rows={4}
-                value={formData.failure_reason}
-                onChange={e =>
-                  setFormData({
-                    ...formData,
-                    failure_reason: e.target.value
-                  })
-                }
-              /> */}
               <QuillNoSSRWrapper
                 theme='snow'
                 modules={modules}
                 formats={formats}
                 placeholder='Failure Reason'
                 onChange={e => {
-                  // console.log(e)
                   htmlCodeFailureReson = e
                 }}
               />

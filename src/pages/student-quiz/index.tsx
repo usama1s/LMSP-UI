@@ -16,22 +16,23 @@ const StudentQuizPage: React.FC = () => {
   const [quizes, setQuizes] = useState([])
   const [user, setUser] = useState(null)
 
-  const getQuizes = async () => {
-    console.log('Quizes', user?.student_id, id)
-
-    await customApiCall('get', `student/get-quiz/${user?.student_id}/${id}`).then(r => {
+  const getQuizes = async userId => {
+    await customApiCall('get', `student/get-quiz/${userId}/${id}`).then(r => {
       setQuizes(r?.quizData)
     })
   }
 
   useEffect(() => {
-    var loggedInUser = localStorage.getItem('user')
-    if (loggedInUser) {
-      var parsedUser = JSON.parse(loggedInUser)
-
-      setUser(parsedUser)
+    const fetchData = async () => {
+      var loggedInUser = localStorage.getItem('user')
+      if (loggedInUser) {
+        var parsedUser = JSON.parse(loggedInUser)
+        setUser(parsedUser)
+        await getQuizes(parsedUser.student_id) // Move the getQuizes call here
+      }
     }
-    getQuizes()
+
+    fetchData()
   }, [])
 
   return (

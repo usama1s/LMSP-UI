@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { Accordion, AccordionSummary, AccordionDetails, Typography, Button } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import useAuth from 'src/@core/utils/useAuth'
+import { downloadFileFromBase64, getFile } from 'src/@core/utils/general'
 
 const CourseMaterial = () => {
   const { customApiCall } = useAuth()
-  const [expandedCourse, setExpandedCourse] = useState(null)
+  const [expandedCourse, setExpandedCourse] = useState<number | string | null>(null)
   const [courses, setCourses] = useState([])
 
-  const handleAccordionChange = courseId => {
+  const handleAccordionChange = (courseId: number | string) => {
     setExpandedCourse(expandedCourse === courseId ? null : courseId)
   }
 
@@ -18,6 +19,11 @@ const CourseMaterial = () => {
     })
   }
 
+  const downloadFile = async (filename: string, topicName: string) => {
+    var file = await getFile(filename)
+    downloadFileFromBase64(file, topicName)
+  }
+
   useEffect(() => {
     getAllCourses()
   }, [])
@@ -25,21 +31,21 @@ const CourseMaterial = () => {
     <div>
       {courses.map(course => (
         <Accordion
-          key={course.course_id}
-          expanded={expandedCourse === course.course_id}
-          onChange={() => handleAccordionChange(course.course_id)}
+          key={course?.course_id}
+          expanded={expandedCourse === course?.course_id}
+          onChange={() => handleAccordionChange(course?.course_id)}
         >
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
-            aria-controls={`panel-${course.course_id}-content`}
-            id={`panel-${course.course_id}-header`}
+            aria-controls={`panel-${course?.course_id}-content`}
+            id={`panel-${course?.course_id}-header`}
           >
-            <Typography variant='h5'>{course.course_name}</Typography>
+            <Typography variant='h5'>{course?.course_name}</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography variant='h6'>{course.course_description}</Typography>
+            <Typography variant='h6'>{course?.course_description}</Typography>
 
-            {course.modules.map(module => (
+            {course?.modules?.map(module => (
               <Accordion key={module.module_name} style={{ marginTop: 5, marginLeft: 20 }}>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
@@ -54,7 +60,10 @@ const CourseMaterial = () => {
                       <Typography style={{ marginTop: '10px' }}>{topic.topic_name}</Typography>
                       <Button
                         variant='contained'
-                        onClick={() => window.open(topic.lecture_file, '_blank')}
+                        // onClick={() => window.open(topic.lecture_file, '_blank')}
+                        onClick={() => {
+                          downloadFile(topic.lecture_file, topic?.topic_name)
+                        }}
                         style={{ marginLeft: '10px', marginTop: '10px' }}
                       >
                         Download Lecture File

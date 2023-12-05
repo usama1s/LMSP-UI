@@ -54,7 +54,6 @@ const useAuth = (): AuthHook => {
     try {
       const lastIndex = filename.lastIndexOf('\\')
       const result = filename.substring(lastIndex + 1)
-      console.log('Image', result)
 
       const response = await api.get(`/general/uploads/${result}`)
       return response?.data?.base64File
