@@ -29,10 +29,14 @@ const AllPrograms = () => {
   const [editedProgram, setEditedProgram] = useState(null)
 
   const getAllPrograms = async () => {
-    await customApiCall('get', 'admin/get-whole-program').then(r => {
-      console.log('programs', r)
-      setAllPrograms(r)
-    })
+    await customApiCall('get', 'admin/get-whole-program')
+      .then(r => {
+        console.log('programs', r)
+        setAllPrograms(r)
+      })
+      .catch(err => {
+        console.log('Error', err)
+      })
   }
 
   const handleEdit = program => {

@@ -7,9 +7,9 @@ import { useRouter } from 'next/router'
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 70 },
-  { field: 'CID', headerName: 'CID', width: 70 },
-  { field: 'courseName', headerName: 'Course Name', width: 200 },
-  { field: 'instructorName', headerName: 'Instructor Name', width: 200 }
+  // { field: 'CID', headerName: 'CID', width: 70 },
+  { field: 'courseName', headerName: 'Course Name', width: 400 }
+  // { field: 'instructorName', headerName: 'Instructor Name', width: 200 }
 ]
 
 const Courses: React.FC = () => {
@@ -30,16 +30,16 @@ const Courses: React.FC = () => {
   }
 
   const getCoursesByUserId = async () => {
-    await customApiCall('get', `student/get-course/${13}`).then(r => {
-      const updatedCourses = r.map((course: any, index) => ({
-        ...r,
-        id: index,
-        CID: course?.course_id,
-        courseName: course?.course_name,
-        instructorName: course?.first_name + ' ' + course?.last_name
-      }))
-      console.log(updatedCourses)
-      setCourseData(updatedCourses)
+    await customApiCall('get', `admin/getCourse/25}`).then(r => {
+      // const updatedCourses = r?.map((course: any, index) => ({
+      //   ...r,
+      //   id: index,
+      //   CID: course?.course_id,
+      //   courseName: course?.course_name,
+      //   instructorName: course?.first_name + ' ' + course?.last_name
+      // }))
+
+      setCourseData([{ id: 25, courseName: r?.course?.course_name }])
     })
   }
   useEffect(() => {
@@ -66,7 +66,7 @@ const Courses: React.FC = () => {
             pageSize={5}
             disableRowSelectionOnClick
             onRowClick={({ row }) => {
-              router.push(`/courses/${row.CID}`)
+              router.push(`/courses/${row.id}`)
             }}
           />
         </div>

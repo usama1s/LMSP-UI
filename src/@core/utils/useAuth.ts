@@ -106,6 +106,7 @@ const useAuth = (): AuthHook => {
 
       return response.data as T
     } catch (error) {
+      console.log('Endpoint', endpoint)
       console.error('API call failed:', error)
       throw error
     }

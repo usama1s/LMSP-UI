@@ -200,11 +200,11 @@ const navigation = (): VerticalNavItemsType => {
   // }
   else if (user?.role == 1 && user?.admin_types.includes(5)) {
     return [
-      {
-        title: 'Add Program',
-        icon: Detail,
-        path: '/add-program'
-      },
+      // {
+      //   title: 'Add Program',
+      //   icon: Detail,
+      //   path: '/add-program'
+      // },
       {
         title: 'Add Course Details',
         icon: Book,

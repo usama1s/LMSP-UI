@@ -5,6 +5,8 @@ import ArticleInventory from './article-inventory'
 import AddProgram from './add-program'
 import QuizPage from './quiz'
 import Courses from './courses'
+
+import AllCourses from './course-details'
 const Dashboard = () => {
   const router = useRouter()
   const [user, setUser] = useState(null)
@@ -21,7 +23,7 @@ const Dashboard = () => {
   if (user?.role == 1 && user?.admin_types.includes(1)) {
     return <AddAccount />
   } else if (user?.role == 1 && user?.admin_types.includes(5)) {
-    return <AddProgram />
+    return <AllCourses />
   } else if (user?.role == 1 && user?.admin_types.includes(3)) {
     //Inventory Incharge
     return <ArticleInventory />
