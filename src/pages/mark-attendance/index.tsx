@@ -35,7 +35,7 @@ const AttendancePage: React.FC = () => {
     attendence_date: null as Date | null
   })
 
-  const [selectedProgram, setSelectedProgram] = useState('')
+  const [selectedSubject, setSelectedSubject] = useState('')
 
   const markAttendance = (studentId: number) => {
     const updatedData = attendanceData.map(student =>
@@ -85,15 +85,21 @@ const AttendancePage: React.FC = () => {
   })
 
   const fetchStudents = async () => {
-    if (!selectedProgram) {
+    if (!selectedSubject) {
       alert('Please select a program to fetch students')
     } else {
-      await customApiCall('get', `instructor/get-students-by-program-plan/${selectedProgram}`).then(students => {
+      const formattedDate = new Date(selectedDate)
+      formattedDate.setDate(selectedDate.getDate() + 1)
+      await customApiCall(
+        'get',
+        `instructor/get-students-by-subject-id/${selectedSubject}/${selectedDate?.toISOString().split('T')[0]}`
+      ).then(students => {
+        console.log(students)
         const formattedStudents = students?.map((student, index) => ({
           id: index + 1,
           student_id: student.student_id,
           name: `${student.first_name} ${student.last_name}`,
-          attendence_status: false
+          attendence_status: student.attendence_status === 1 ? true : false
         }))
         setAttendanceData(formattedStudents)
       })
@@ -113,7 +119,8 @@ const AttendancePage: React.FC = () => {
 
       const dataToSend = {
         attendence_date: formattedDate.toISOString().split('T')[0],
-        students: students
+        students: students,
+        subject_id: selectedSubject
       }
 
       await customApiCall('post', 'instructor/mark-attendence', dataToSend).then(r => {
@@ -121,9 +128,26 @@ const AttendancePage: React.FC = () => {
         // Reset data after submission
         setAttendanceData([])
         setSelectedDate(null)
-        setSelectedProgram('')
+        setSelectedSubject('')
       })
     }
+  }
+  const [subjects, setSubjects] = useState([])
+
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    var user = localStorage.getItem('user')
+    if (user && user != undefined) {
+      var loggedInUser = JSON.parse(user)
+      getAllsubjects(loggedInUser?.instructor_id)
+      setUser(loggedInUser)
+    }
+  }, [])
+  const getAllsubjects = async instructorId => {
+    await customApiCall('get', `instructor/${instructorId}/subjects`).then(r => {
+      setSubjects(r?.subjects)
+    })
   }
   useEffect(() => {
     getAllProgramPlans()
@@ -148,17 +172,15 @@ const AttendancePage: React.FC = () => {
               customInput={<CustomInput label={'Date'} />}
             />
             <FormControl fullWidth style={{ marginTop: '1rem' }}>
-              <InputLabel>Program Plan</InputLabel>
+              <InputLabel>Subject</InputLabel>
               <Select
-                label='Program Plan'
-                value={selectedProgram}
+                label='Subject'
+                value={selectedSubject}
                 // defaultValue='single'
-                onChange={e => setSelectedProgram(e.target.value as string)}
+                onChange={e => setSelectedSubject(e.target.value as string)}
               >
-                {programs &&
-                  programs?.map((item, index) => (
-                    <MenuItem value={item?.program_plan_id}>{item?.program_name}</MenuItem>
-                  ))}
+                {subjects &&
+                  subjects?.map((item, index) => <MenuItem value={item?.subject_id}>{item?.subject_name}</MenuItem>)}
               </Select>
             </FormControl>
             <ButtonStyled component='label' variant='contained' sx={{ marginTop: '1rem' }} onClick={fetchStudents}>

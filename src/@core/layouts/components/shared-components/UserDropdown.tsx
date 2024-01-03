@@ -15,12 +15,8 @@ import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
 // ** Icons Imports
-import CogOutline from 'mdi-material-ui/CogOutline'
-import CurrencyUsd from 'mdi-material-ui/CurrencyUsd'
-import EmailOutline from 'mdi-material-ui/EmailOutline'
 import LogoutVariant from 'mdi-material-ui/LogoutVariant'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
-import MessageOutline from 'mdi-material-ui/MessageOutline'
 import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline'
 import useAuth from 'src/@core/utils/useAuth'
 
@@ -42,7 +38,6 @@ const UserDropdown = () => {
 
   useEffect(() => {
     var user = localStorage.getItem('user')
-
     if (user && user != undefined) {
       var loggedInUser = JSON.parse(user)
       setUser(loggedInUser)
@@ -139,12 +134,41 @@ const UserDropdown = () => {
           </Box>
         </MenuItem>
 
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <HelpCircleOutline sx={{ marginRight: 2 }} />
-            FAQ
-          </Box>
-        </MenuItem>
+        {user?.role == 3 ? (
+          <MenuItem
+            sx={{ p: 0 }}
+            onClick={() => {
+              if (user?.role == 3) {
+                handleDropdownClose('/faq')
+              } else {
+                handleDropdownClose()
+              }
+            }}
+          >
+            <Box sx={styles}>
+              <HelpCircleOutline sx={{ marginRight: 2 }} />
+              FAQ
+            </Box>
+          </MenuItem>
+        ) : null}
+
+        {user?.role == 3 ? (
+          <MenuItem
+            sx={{ p: 0 }}
+            onClick={() => {
+              if (user?.role == 3) {
+                handleDropdownClose('/contact-us')
+              } else {
+                handleDropdownClose()
+              }
+            }}
+          >
+            <Box sx={styles}>
+              <HelpCircleOutline sx={{ marginRight: 2 }} />
+              Contact US
+            </Box>
+          </MenuItem>
+        ) : null}
         <Divider />
         <MenuItem
           sx={{ py: 2 }}

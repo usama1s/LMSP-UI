@@ -35,8 +35,22 @@ const TeacherAssignmentPage: React.FC = () => {
     program_plan_id: ''
   })
 
-  const [programs, setPrograms] = useState([])
+  const [user, setUser] = useState(null)
+  const [subjects, setSubjects] = useState([])
 
+  useEffect(() => {
+    var user = localStorage.getItem('user')
+    if (user && user != undefined) {
+      var loggedInUser = JSON.parse(user)
+      getAllsubjects(loggedInUser?.instructor_id)
+      setUser(loggedInUser)
+    }
+  }, [])
+  const getAllsubjects = async instructorId => {
+    await customApiCall('get', `instructor/${instructorId}/subjects`).then(r => {
+      setSubjects(r?.subjects)
+    })
+  }
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setAssignmentDetails({
       ...assignmentDetails,
@@ -85,15 +99,7 @@ const TeacherAssignmentPage: React.FC = () => {
     }
   }))
 
-  const getAllProgramPlans = async () => {
-    await customApiCall('get', 'admin/get-all-program_plan').then(r => {
-      setPrograms(r)
-    })
-  }
-
   const handleSubmit = async () => {
-    console.log(assignmentDetails)
-
     if (
       !assignmentDetails.dueDate ||
       !assignmentDetails.pdfFile ||
@@ -103,12 +109,15 @@ const TeacherAssignmentPage: React.FC = () => {
     ) {
       alert('Please fill all details')
     } else {
+      const selectedSubject = subjects.find(subject => subject.subject_id === assignmentDetails.program_plan_id)
+
       const assignmentData = {
-        program_plan_id: assignmentDetails.program_plan_id,
+        subject_id: assignmentDetails.program_plan_id,
         assignment_date: assignmentDetails.dueDate,
         assignment_file: assignmentDetails.pdfFile,
         assignment_instruction: assignmentDetails.instructions,
-        assignment_title: assignmentDetails.title
+        assignment_title: assignmentDetails.title,
+        instructor_id: user?.instructor_id
       }
       await customApiCall('post', '/instructor/add-assignment', assignmentData).then(r => {
         alert(r)
@@ -119,6 +128,7 @@ const TeacherAssignmentPage: React.FC = () => {
           instructions: '',
           program_plan_id: ''
         })
+        setPdfFile(null)
       })
       console.log(assignmentDetails)
     }
@@ -127,9 +137,6 @@ const TeacherAssignmentPage: React.FC = () => {
     return <TextField fullWidth {...props} inputRef={ref} autoComplete='off' />
   })
 
-  useEffect(() => {
-    getAllProgramPlans()
-  }, [])
   return (
     <DatePickerWrapper>
       <Container maxWidth='lg' style={{ marginTop: '2rem' }}>
@@ -138,15 +145,15 @@ const TeacherAssignmentPage: React.FC = () => {
         </Typography>
         <Paper style={{ padding: '2rem', marginTop: '1rem' }}>
           <FormControl fullWidth>
-            <InputLabel>Program Plan</InputLabel>
+            <InputLabel>Subject</InputLabel>
             <Select
               label='Program Plan'
-              value={assignmentDetails.program_plan_id}
+              value={assignmentDetails.subject_id}
               // defaultValue='single'
               onChange={e => setAssignmentDetails({ ...assignmentDetails, program_plan_id: e.target.value as string })}
             >
-              {programs?.map((item, index) => (
-                <MenuItem value={item?.program_plan_id}>{item?.program_name}</MenuItem>
+              {subjects?.map((item, index) => (
+                <MenuItem value={item?.subject_id}>{item?.subject_name}</MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -183,7 +190,7 @@ const TeacherAssignmentPage: React.FC = () => {
               setDueDate(date)
               setAssignmentDetails({
                 ...assignmentDetails,
-                dueDate: date.getDate() + '/' + (parseInt(date.getMonth()) + 1) + '/' + date.getFullYear()
+                dueDate: date.toISOString().split('T')[0]
               })
             }}
           />

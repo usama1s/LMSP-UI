@@ -1,4 +1,3 @@
-// pages/quiz.tsx
 import React, { ElementType, useState, forwardRef, useEffect } from 'react'
 import {
   Container,
@@ -32,7 +31,7 @@ interface Question {
   image?: string | undefined
 }
 
-const QuizPage: React.FC = () => {
+const InstructorPage: React.FC = () => {
   const { customApiCall } = useAuth()
   const [quizDaate, setQuizDate] = useState<Date | null>(null)
   const [questions, setQuestions] = useState<Question[]>([
@@ -115,13 +114,13 @@ const QuizPage: React.FC = () => {
       const selectedSubject = subjects.find(subject => subject.subject_id === programPlanId)
       const requestData = {
         subject_id: programPlanId,
-        quiz_date: quizDaate.toISOString().split('T')[0],
+        paper_date: quizDaate.toISOString().split('T')[0],
         quiz_questions: questions,
         instructor_id: user?.instructor_id,
         section: selectedSubject.section
       }
       console.log('data to send', requestData)
-      await customApiCall('post', '/instructor/add-quiz', requestData)
+      await customApiCall('post', '/instructor/add-paper', requestData)
         .then(r => {
           console.log(r)
           alert(r)
@@ -166,7 +165,7 @@ const QuizPage: React.FC = () => {
     <DatePickerWrapper>
       <Container maxWidth='lg' style={{ marginTop: '2rem', backgroundColor: 'white', padding: 30, borderRadius: 10 }}>
         <Typography variant='h4' gutterBottom>
-          Quiz
+          Paper
         </Typography>
         <Grid item xs={12} sm={6} mt={3}>
           <DatePicker
@@ -174,7 +173,7 @@ const QuizPage: React.FC = () => {
             showYearDropdown
             showMonthDropdown
             placeholderText='MM-DD-YYYY'
-            customInput={<CustomInput label={'Quiz Date'} />}
+            customInput={<CustomInput label={'Paper Date'} />}
             id='form-layouts-separator-date'
             onChange={(date: Date) => {
               setQuizDate(date)
@@ -298,4 +297,4 @@ const QuizPage: React.FC = () => {
   )
 }
 
-export default QuizPage
+export default InstructorPage

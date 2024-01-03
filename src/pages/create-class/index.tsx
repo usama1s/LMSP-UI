@@ -101,6 +101,25 @@ const CreateClass: React.FC = () => {
     return <TextField fullWidth {...props} inputRef={ref} autoComplete='off' />
   })
 
+  const [subjects, setSubjects] = useState([])
+
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    var user = localStorage.getItem('user')
+    if (user && user != undefined) {
+      var loggedInUser = JSON.parse(user)
+      getAllsubjects(loggedInUser?.instructor_id)
+      setUser(loggedInUser)
+    }
+  }, [])
+  const getAllsubjects = async instructorId => {
+    await customApiCall('get', `instructor/${instructorId}/subjects`).then(r => {
+      console.log('subjects', r)
+      setSubjects(r?.subjects)
+    })
+  }
+
   useEffect(() => {
     getAllProgramPlans()
   }, [])
@@ -113,15 +132,15 @@ const CreateClass: React.FC = () => {
           </Typography>
           <Paper style={{ padding: '2rem', marginTop: '1rem' }}>
             <FormControl fullWidth>
-              <InputLabel>Program Plan</InputLabel>
+              <InputLabel>Select Subject</InputLabel>
               <Select
-                label='Program Plan'
+                label='Select Subject'
                 value={classDetails.program_plan_id}
                 // defaultValue='single'
                 onChange={e => setclassDetails({ ...classDetails, program_plan_id: e.target.value as string })}
               >
-                {programs?.map((item, index) => (
-                  <MenuItem value={item?.program_plan_id}>{item?.program_name}</MenuItem>
+                {subjects?.map((item, index) => (
+                  <MenuItem value={item?.subject_id}>{item?.subject_name}</MenuItem>
                 ))}
               </Select>
             </FormControl>

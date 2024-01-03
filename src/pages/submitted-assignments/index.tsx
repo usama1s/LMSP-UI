@@ -67,27 +67,55 @@ const SubmittedAssignmentsPage: React.FC = () => {
     })
   }
 
+  const [subjects, setSubjects] = useState([])
+
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    var user = localStorage.getItem('user')
+    if (user && user != undefined) {
+      var loggedInUser = JSON.parse(user)
+      getAllsubjects(loggedInUser?.instructor_id)
+      setUser(loggedInUser)
+    }
+  }, [])
+  const getAllsubjects = async instructorId => {
+    await customApiCall('get', `instructor/${instructorId}/subjects`).then(r => {
+      setSubjects(r?.subjects)
+    })
+  }
+
   useEffect(() => {
     getAllProgramPlans()
     // getCourses()
   }, [])
   return (
-    <Container maxWidth='lg' style={{ marginTop: '2rem', height: '100vh', backgroundColor: 'white' }}>
+    <Container maxWidth='lg' style={{ marginTop: '2rem', height: '100vh', backgroundColor: 'white', padding: 20 }}>
       <Typography variant='h4' gutterBottom>
         Submitted Assignments
       </Typography>
-
-      <Select value={selectedCourse} onChange={handleCourseChange} style={{ marginBottom: '1rem' }}>
-        <MenuItem value={null} disabled>
-          Select Program
-        </MenuItem>
-        {programs.map(course => (
-          <MenuItem key={course.program_plan_id} value={course.program_plan_id}>
-            {course.program_name}
+      <Container style={{ flexDirection: 'row', display: 'flex', columnGap: 20 }}>
+        <Select value={selectedCourse} onChange={handleCourseChange} style={{ marginBottom: '1rem' }}>
+          <MenuItem value={null} disabled>
+            Select Subject
           </MenuItem>
-        ))}
-      </Select>
-
+          {subjects.map(course => (
+            <MenuItem key={course.subject_id} value={course.subject_id}>
+              {course.subject_name}
+            </MenuItem>
+          ))}
+        </Select>
+        <Select value={selectedCourse} onChange={handleCourseChange} style={{ marginBottom: '1rem' }}>
+          <MenuItem value={null} disabled>
+            Select Assignment
+          </MenuItem>
+          {subjects.map(course => (
+            <MenuItem key={course.subject_id} value={course.subject_id}>
+              {course.subject_name}
+            </MenuItem>
+          ))}
+        </Select>
+      </Container>
       {selectedCourse && (
         <Table>
           <TableHead>

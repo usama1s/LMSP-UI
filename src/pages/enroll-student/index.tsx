@@ -22,6 +22,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { styled } from '@mui/material/styles'
 
 import useAuth from 'src/@core/utils/useAuth'
+import { gridColumnDefinitionsSelector } from '@mui/x-data-grid'
 
 const EnrollStudent: React.FC = () => {
   const { customApiCall } = useAuth()
@@ -31,11 +32,12 @@ const EnrollStudent: React.FC = () => {
   const [enrollmentDetails, setenrollmentDetails] = useState({
     enrollment_date: '',
     student_id: '',
-    program_plan_id: '',
-    program_status: 1
+    course_id: '',
+    enrollment_status: 1
   })
 
   const [programs, setPrograms] = useState([])
+  const [courses, setCourses] = useState([])
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setenrollmentDetails({
@@ -63,28 +65,37 @@ const EnrollStudent: React.FC = () => {
     })
   }
 
+  const getAllCoursesNamesWithIds = async () => {
+    await customApiCall('get', 'admin/getAllCoursesNamesWithIds').then(r => {
+      setCourses(r?.courses)
+    })
+  }
+
   const handleSubmit = async () => {
     console.log(enrollmentDetails)
 
     if (
       !enrollmentDetails.student_id ||
       !enrollmentDetails.enrollment_date ||
-      !enrollmentDetails.program_status ||
-      !enrollmentDetails.program_plan_id
+      !enrollmentDetails.enrollment_status ||
+      !enrollmentDetails.course_id
     ) {
       alert('Please fill all details')
     } else {
-      const assignmentData = {}
-      await customApiCall('post', '/instructor/enroll-student', enrollmentDetails).then(r => {
-        alert(r?.message)
-        setenrollmentDetails({
-          enrollment_date: '',
-          student_id: '',
-          program_plan_id: '',
-          program_status: 1
+      await customApiCall('post', 'admin/enroll-student', enrollmentDetails)
+        .then(r => {
+          alert(r?.message)
+          setenrollmentDetails({
+            enrollment_date: '',
+            student_id: '',
+            course_id: '',
+            enrollment_status: 1
+          })
+          setEnrollmentDate(null)
         })
-      })
-      console.log(enrollmentDetails)
+        .catch(e => {
+          alert(e)
+        })
     }
   }
   const CustomInput = forwardRef((props: TextFieldProps, ref) => {
@@ -92,6 +103,8 @@ const EnrollStudent: React.FC = () => {
   })
 
   useEffect(() => {
+    getAllCoursesNamesWithIds()
+
     getAllStudents()
     getAllProgramPlans()
   }, [])
@@ -103,15 +116,15 @@ const EnrollStudent: React.FC = () => {
         </Typography>
         <Paper style={{ padding: '2rem', marginTop: '1rem' }}>
           <FormControl fullWidth>
-            <InputLabel>Program Plan</InputLabel>
+            <InputLabel>Course</InputLabel>
             <Select
-              label='Program Plan'
-              value={enrollmentDetails.program_plan_id}
+              label='Course'
+              value={enrollmentDetails.course_id}
               // defaultValue='single'
-              onChange={e => setenrollmentDetails({ ...enrollmentDetails, program_plan_id: e.target.value as string })}
+              onChange={e => setenrollmentDetails({ ...enrollmentDetails, course_id: e.target.value as string })}
             >
-              {programs?.map((item, index) => (
-                <MenuItem value={item?.program_plan_id}>{item?.program_name}</MenuItem>
+              {courses?.map((item, index) => (
+                <MenuItem value={item?.course_id}>{item?.course_name}</MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -133,9 +146,11 @@ const EnrollStudent: React.FC = () => {
             <InputLabel>Status</InputLabel>
             <Select
               label='Status'
-              value={enrollmentDetails.program_status}
+              value={enrollmentDetails.enrollment_status}
               // defaultValue='single'
-              onChange={e => setenrollmentDetails({ ...enrollmentDetails, program_status: e.target.value as string })}
+              onChange={e =>
+                setenrollmentDetails({ ...enrollmentDetails, enrollment_status: e.target.value as string })
+              }
             >
               <MenuItem value='1'>Active</MenuItem>
               <MenuItem value='0'>InActive</MenuItem>
@@ -153,7 +168,7 @@ const EnrollStudent: React.FC = () => {
               setEnrollmentDate(date)
               setenrollmentDetails({
                 ...enrollmentDetails,
-                enrollment_date: date.getDate() + '/' + (parseInt(date.getMonth()) + 1) + '/' + date.getFullYear()
+                enrollment_date: date.toISOString().split('T')[0]
               })
             }}
           />
