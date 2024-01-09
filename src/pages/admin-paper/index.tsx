@@ -181,9 +181,17 @@ const AdminPage: React.FC = () => {
 
   const [SubjectId, setSubjectId] = useState<string | null>(null)
   const [subjects, setSubjects] = useState([])
+  const [papers, setPapers] = useState([])
 
   const [user, setUser] = useState(null)
 
+  const getPapers = async subjectId => {
+    await customApiCall('get', `instructor/instructor-papers/${subjectId}`)
+      .then(r => {
+        setPapers(r?.papers)
+      })
+      .catch(err => [console.log(err)])
+  }
   useEffect(() => {
     var user = localStorage.getItem('user')
     if (user && user != undefined) {
@@ -207,7 +215,15 @@ const AdminPage: React.FC = () => {
       <Grid item xs={12} sm={6} mt={3}>
         <FormControl fullWidth style={{ backgroundColor: 'white' }}>
           <InputLabel>Subject</InputLabel>
-          <Select label='Subject' value={SubjectId} onChange={e => setSubjectId(e.target.value as string)}>
+          <Select
+            label='Subject'
+            value={SubjectId}
+            onChange={e => {
+              setPapers([])
+              setSubjectId(e.target.value as string)
+              getPapers(e.target.value)
+            }}
+          >
             {subjects?.map((item, index) => (
               <MenuItem value={item?.subject_id}>{item?.subject_name}</MenuItem>
             ))}
@@ -225,14 +241,14 @@ const AdminPage: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {quizzesData.map(quiz => (
+            {papers.map(quiz => (
               <React.Fragment key={quiz.subject_id}>
                 <TableRow>
                   <TableCell colSpan={4} sx={{ fontSize: 20 }}>
-                    <strong>{`Paper ${quiz.subject_id}`}</strong>
+                    <strong>{`Paper by ${quiz.instructor_name} on ${new Date(quiz.paper_date).toDateString()}`}</strong>
                   </TableCell>
                 </TableRow>
-                {quiz.quiz_questions.map(question => (
+                {quiz.questions.map(question => (
                   <TableRow key={question.qid}>
                     <TableCell>
                       <Checkbox
