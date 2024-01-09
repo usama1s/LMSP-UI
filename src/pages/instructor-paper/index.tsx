@@ -37,6 +37,7 @@ const InstructorPage: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([
     // { question: '', options: ['', '', '', ''], correctOption: null, image: '/images/avatars/placeholder.png' }
   ])
+  const [title, setTitle] = useState<string | null>('')
   const [img, setImg] = useState<string | null>(null)
   const [programPlanId, setProgramPlanId] = useState<string | null>(null)
   const [subjects, setSubjects] = useState([])
@@ -105,6 +106,7 @@ const InstructorPage: React.FC = () => {
     setQuizDate(null)
     setProgramPlanId(null)
     setQuestions([])
+    setTitle('')
   }
 
   const handleSubmit = async () => {
@@ -115,9 +117,10 @@ const InstructorPage: React.FC = () => {
       const requestData = {
         subject_id: programPlanId,
         paper_date: quizDaate.toISOString().split('T')[0],
-        quiz_questions: questions,
+        paper_questions: questions,
         instructor_id: user?.instructor_id,
-        section: selectedSubject.section
+        section: selectedSubject.section,
+        title: title
       }
       console.log('data to send', requestData)
       await customApiCall('post', '/instructor/add-paper', requestData)
@@ -167,6 +170,16 @@ const InstructorPage: React.FC = () => {
         <Typography variant='h4' gutterBottom>
           Paper
         </Typography>
+        <Grid item xs={12} sm={6} mt={3}>
+          <TextField
+            label={`Title`}
+            fullWidth
+            multiline
+            variant='outlined'
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+          />
+        </Grid>
         <Grid item xs={12} sm={6} mt={3}>
           <DatePicker
             selected={quizDaate}

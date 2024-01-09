@@ -8,8 +8,8 @@ import { CardHeader, Typography } from '@mui/material'
 import useAuth from 'src/@core/utils/useAuth'
 import { FormControl, InputLabel, Select, MenuItem, ListItemText } from '@mui/material'
 import dynamic from 'next/dynamic'
-import JoditEditor from 'jodit-react'
-import 'react-quill/dist/quill.snow.css'
+import Editor from './Editor'
+import { set } from 'nprogress'
 
 const sectionsList = ['A', 'B', 'C', 'D', 'E', 'F']
 interface Subject {
@@ -72,7 +72,6 @@ const formats = [
   'video'
 ]
 
-var courseDescription = null
 const CourseDetails: React.FC = ({ courseToEdit }: any) => {
   const editorRef = useRef(null)
   const { customApiCall } = useAuth()
@@ -88,9 +87,11 @@ const CourseDetails: React.FC = ({ courseToEdit }: any) => {
   })
   const [instructors, setInstructors] = useState([])
   const [currentFile, setCurrentFile] = useState<File | null>(null)
-
+  const [toEdit, setToEdit] = useState(false)
   useEffect(() => {
     if (courseToEdit) {
+      console.log('Course To Edit', courseToEdit)
+      setToEdit(true)
       setCourseData(courseToEdit)
     }
   }, [])
@@ -304,45 +305,48 @@ const CourseDetails: React.FC = ({ courseToEdit }: any) => {
     }
   }
 
-  const readFileAsBase64 = file => {
-    return new Promise(resolve => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onloadend = () => {
-        resolve(reader.result)
-      }
-    })
-  }
-
   const handleSubmit = async () => {
-    await customApiCall('post', 'admin/addCourse', courseData)
-      .then(r => {
+    if (toEdit) {
+      console.log(courseData)
+      await customApiCall('put', 'admin/editCourse', courseData).then(r => {
         if (r?.error) {
           alert(r?.error)
           return
         }
         alert(r?.message)
+      })
+    } else {
+      await customApiCall('post', 'admin/addCourse', courseData)
+        .then(r => {
+          if (r?.error) {
+            alert(r?.error)
+            return
+          }
+          alert(r?.message)
 
-        setCourseData({
-          course_name: '',
-          course_description: '',
-          outline_file: '',
-          prerequisites: '',
-          learning_outcomes: '',
-          classroom_material: '',
-          reference_books: '',
-          modules: []
+          setCourseData({
+            course_name: '',
+            course_description: '',
+            outline_file: '',
+            prerequisites: '',
+            learning_outcomes: '',
+            classroom_material: '',
+            reference_books: '',
+            modules: []
+          })
+          setCurrentFile(null)
         })
-        setCurrentFile(null)
-      })
-      .catch(err => {
-        alert(err?.message)
-        console.log(err)
-      })
+        .catch(err => {
+          alert(err?.message)
+          console.log(err)
+        })
+    }
   }
 
   const getTeacherName = (teacherId: number): string => {
-    const teacher = instructors.find(t => t.id === teacherId)
+    console.log('TEACHERID', teacherId)
+    console.log(instructors)
+    const teacher = instructors.find(t => t.instructor_id == teacherId)
     return teacher ? teacher.first_name + ' ' + teacher.last_name : ''
   }
   const handleCancel = () => {
@@ -380,20 +384,16 @@ const CourseDetails: React.FC = ({ courseToEdit }: any) => {
     marginLeft: theme.spacing(2)
   }))
 
-  const JoditNoSSRWrapper = dynamic(() => import('jodit-react'), {
-    ssr: false,
-    loading: () => <p>Loading ...</p>
-  })
-
-  const onChangeFile = (file: ChangeEvent) => {
+  const onChangeFile = async (file: ChangeEvent) => {
     const reader = new FileReader()
     const { files } = file.target as HTMLInputElement
     console.log(files)
     if (files && files.length !== 0) {
       setCurrentFile(files[0])
-      reader.onload = () =>
+      let base64File = await toBase64(files[0])
+      reader.onload = async () =>
         setCourseData(prev => {
-          return { ...prev, outline_file: files[0] }
+          return { ...prev, outline_file: base64File }
         })
 
       reader.readAsDataURL(files[0])
@@ -404,7 +404,6 @@ const CourseDetails: React.FC = ({ courseToEdit }: any) => {
     await customApiCall('get', 'admin/get-all-instructors')
       .then(r => {
         setInstructors(r?.instructors)
-        //  setCourses(r?.result)
       })
       .catch(err => {
         console.log(err)
@@ -447,60 +446,7 @@ const CourseDetails: React.FC = ({ courseToEdit }: any) => {
           margin='normal'
         />
 
-        <JoditNoSSRWrapper
-          ref={editorRef.current}
-          config={{
-            readonly: false
-          }}
-          value={courseData.course_description}
-          onBlur={e => {
-            setCourseData({ ...courseData, course_description: e })
-          }}
-        />
-
-        <JoditNoSSRWrapper
-          ref={editorRef.current}
-          value={courseData.prerequisites}
-          onBlur={e => {
-            setCourseData({ ...courseData, prerequisites: e })
-          }}
-        />
-
-        <JoditNoSSRWrapper
-          ref={editorRef.current}
-          value={courseData.learning_outcomes}
-          onBlur={e => {
-            setCourseData({ ...courseData, learning_outcomes: e })
-          }}
-        />
-
-        <JoditNoSSRWrapper
-          ref={editorRef.current}
-          value={courseData.classroom_material}
-          onBlur={e => {
-            setCourseData({ ...courseData, classroom_material: e })
-          }}
-        />
-
-        {/* <QuillNoSSRWrapper
-          theme='snow'
-          modules={modules}
-          formats={formats}
-          placeholder='Reference Books'
-          onChange={e => {
-            setCourseData({ ...courseData, reference_books: e })
-          }}
-          value={courseData.reference_books}
-          style={{ marginTop: 15 }}
-        /> */}
-
-        <JoditNoSSRWrapper
-          ref={editorRef.current}
-          value={courseData.reference_books}
-          onBlur={e => {
-            setCourseData({ ...courseData, reference_books: e })
-          }}
-        />
+        <Editor editorRef={editorRef} courseData={courseData} setCourseData={setCourseData} />
 
         {courseData.modules.map((module, moduleIndex) => (
           <Box key={moduleIndex} mt={3}>
@@ -546,7 +492,7 @@ const CourseDetails: React.FC = ({ courseToEdit }: any) => {
                     labelId={`teachers-dropdown-${moduleIndex}-${subjectIndex}`}
                     id={`teachers-dropdown-${moduleIndex}-${subjectIndex}`}
                     multiple
-                    value={subject.teachers.map(teacher => teacher.teacherID) || []}
+                    value={subject.teachers.map(teacher => teacher.teacherID || teacher.instructor_id) || []}
                     onChange={e => {
                       const selectedTeachers = e.target.value as number[]
                       handleTeacherChange(moduleIndex, subjectIndex, subject.subject_name, selectedTeachers)
@@ -565,7 +511,8 @@ const CourseDetails: React.FC = ({ courseToEdit }: any) => {
                   >
                     {instructors.map(teacher => (
                       <MenuItem key={teacher?.instructor_id} value={teacher?.instructor_id}>
-                        <ListItemText primary={teacher?.first_name} />
+                        {console.log('Mapping instructors', teacher)}
+                        <ListItemText primary={teacher?.first_name + ' ' + teacher?.last_name} />
                       </MenuItem>
                     ))}
                   </Select>
@@ -573,10 +520,8 @@ const CourseDetails: React.FC = ({ courseToEdit }: any) => {
 
                 {subject.teachers.map(teacher => (
                   <Box style={{ display: 'flex', marginTop: 20 }}>
-                    {console.log(teacher)}
-
                     <Typography ml={10} variant='h6'>
-                      {getTeacherName(teacher.teacherID)}
+                      {getTeacherName(teacher.teacherID || teacher?.instructor_id)}
                     </Typography>
                     <FormControl fullWidth sx={{ marginLeft: 1 }}>
                       <InputLabel>Section</InputLabel>

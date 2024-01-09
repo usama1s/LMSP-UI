@@ -133,6 +133,11 @@ const navigation = (): VerticalNavItemsType => {
         title: 'Paper',
         icon: Book,
         path: '/admin-paper'
+      },
+      {
+        title: 'Certificate',
+        icon: Book,
+        path: '/certificate'
       }
     ]
   } else if (user?.role == 1 && user?.admin_types.includes(3)) {
