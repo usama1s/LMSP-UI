@@ -29,17 +29,15 @@ const Courses: React.FC = () => {
     setFilterOption(event.target.value as string)
   }
 
-  const getCoursesByUserId = async () => {
-    await customApiCall('get', `admin/getCourse/25}`).then(r => {
-      // const updatedCourses = r?.map((course: any, index) => ({
-      //   ...r,
-      //   id: index,
-      //   CID: course?.course_id,
-      //   courseName: course?.course_name,
-      //   instructorName: course?.first_name + ' ' + course?.last_name
-      // }))
-
-      setCourseData([{ id: 25, courseName: r?.course?.course_name }])
+  const getCoursesByUserId = async (user_id: number) => {
+    await customApiCall('get', `student/get-course/${user_id}`).then(r => {
+      console.log('courses', r, 'vv', user_id)
+      const updatedCourses = r?.map((course: any, _) => ({
+        id: course?.course_id,
+        courseName: course?.course_name
+      }))
+      setCourseData(updatedCourses)
+      // setCourseData([{ id: 25, courseName: r?.course?.course_name }])
     })
   }
   useEffect(() => {
@@ -48,8 +46,8 @@ const Courses: React.FC = () => {
     if (user && user != undefined) {
       var loggedInUser = JSON.parse(user)
       setUser(loggedInUser)
+      getCoursesByUserId(loggedInUser?.student_id)
     }
-    getCoursesByUserId()
   }, [selectedProgram, filterOption])
 
   return (

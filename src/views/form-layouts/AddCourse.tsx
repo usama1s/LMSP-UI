@@ -7,9 +7,7 @@ import styled from '@emotion/styled'
 import { CardHeader, Typography } from '@mui/material'
 import useAuth from 'src/@core/utils/useAuth'
 import { FormControl, InputLabel, Select, MenuItem, ListItemText } from '@mui/material'
-import dynamic from 'next/dynamic'
 import Editor from './Editor'
-import { set } from 'nprogress'
 
 const sectionsList = ['A', 'B', 'C', 'D', 'E', 'F']
 interface Subject {

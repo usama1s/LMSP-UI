@@ -238,7 +238,8 @@ const AddAccountForm = ({ selectedUserToEdit }: any) => {
             registrationDate: null,
             adminType: [],
             status: 'active',
-            profileImage: ''
+            profileImage: '',
+            registrationId: ''
           })
           setImageFile('')
         })

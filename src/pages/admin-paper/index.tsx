@@ -16,7 +16,8 @@ import {
   FormControlLabel,
   Select,
   MenuItem,
-  InputLabel
+  InputLabel,
+  TextField
 } from '@mui/material'
 import useAuth from 'src/@core/utils/useAuth'
 
@@ -163,25 +164,48 @@ const AdminPage: React.FC = () => {
   const { customApiCall } = useAuth()
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([])
 
-  const toggleQuestionSelection = (quizId: number, questionId: number) => {
-    const uniqueIdentifier = `${quizId}-${questionId}`
-
-    const isAlreadySelected = selectedQuestions.includes(uniqueIdentifier)
-
-    if (isAlreadySelected) {
-      setSelectedQuestions(selectedQuestions.filter(id => id !== uniqueIdentifier))
-    } else {
-      setSelectedQuestions([...selectedQuestions, uniqueIdentifier])
+  const toggleQuestionSelection = (question: Question) => {
+    if (selectedQuestions.includes(question)) {
+      setSelectedQuestions(prev => prev.filter(q => q.qid !== question.qid))
+      return
     }
+    setSelectedQuestions(prev => [...prev, question])
   }
 
-  const createNewPaper = () => {
-    console.log('Selected Questions:', selectedQuestions)
+  const createNewPaper = async () => {
+    const dataToSend = {
+      title: title,
+      paper_questions: selectedQuestions,
+      paper_date: selectedDate.toDateString(),
+      subject_id: SubjectId,
+      admin_id: user?.admin_id,
+      section: ''
+    }
+    console.log(dataToSend)
+    await customApiCall('post', 'admin/addPaper', dataToSend)
+      .then(r => {
+        if (r?.error) {
+          alert(r?.error)
+          return
+        } else {
+          alert(r)
+          setTitle('')
+          setSelectedQuestions([])
+          setSelectedDate(new Date())
+          setSubjectId(null)
+          setPapers([])
+        }
+      })
+      .catch(err => {
+        console.log(err)
+      })
   }
 
   const [SubjectId, setSubjectId] = useState<string | null>(null)
   const [subjects, setSubjects] = useState([])
   const [papers, setPapers] = useState([])
+  const [selectedDate, setSelectedDate] = useState(new Date())
+  const [title, setTitle] = useState('')
 
   const [user, setUser] = useState(null)
 
@@ -230,39 +254,56 @@ const AdminPage: React.FC = () => {
           </Select>
         </FormControl>
       </Grid>
+      <Grid item xs={6} mt={6}>
+        <TextField
+          fullWidth
+          label='Select Date'
+          type='date'
+          value={selectedDate.toISOString().split('T')[0]}
+          onChange={e => setSelectedDate(new Date(e.target.value))}
+          InputLabelProps={{
+            shrink: true
+          }}
+        />
+      </Grid>
+      <Grid item xs={12} mt={6}>
+        <TextField fullWidth label='Title' value={title} onChange={e => setTitle(e.target.value)} />
+      </Grid>
       <TableContainer>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>Select</TableCell>
-              <TableCell>Quiz Title</TableCell>
+              <TableCell>Paper Title</TableCell>
               <TableCell>Question</TableCell>
               <TableCell>Options</TableCell>
+              <TableCell>Correct Option</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {papers.map(quiz => (
               <React.Fragment key={quiz.subject_id}>
                 <TableRow>
-                  <TableCell colSpan={4} sx={{ fontSize: 20 }}>
+                  <TableCell colSpan={5} sx={{ fontSize: 20 }}>
                     <strong>{`Paper by ${quiz.instructor_name} on ${new Date(quiz.paper_date).toDateString()}`}</strong>
                   </TableCell>
                 </TableRow>
                 {quiz.questions.map(question => (
-                  <TableRow key={question.qid}>
+                  <TableRow key={question.question_id}>
                     <TableCell>
                       <Checkbox
-                        checked={selectedQuestions.includes(`${quiz.subject_id}-${question.qid}`)}
-                        onChange={() => toggleQuestionSelection(quiz.subject_id, question.qid)}
+                        checked={selectedQuestions.includes(question)}
+                        onChange={() => toggleQuestionSelection(question)}
                       />
                     </TableCell>
-                    <TableCell>{`Paper ${quiz.subject_id}`}</TableCell>
+                    <TableCell>{`${quiz.paper_title}`}</TableCell>
                     <TableCell>{question.question}</TableCell>
                     <TableCell>
                       {question.options.map((option, optionIndex) => (
                         <div key={optionIndex}>{`${optionIndex + 1}. ${option}`}</div>
                       ))}
                     </TableCell>
+                    <TableCell>{question.answer}</TableCell>
                   </TableRow>
                 ))}
               </React.Fragment>
