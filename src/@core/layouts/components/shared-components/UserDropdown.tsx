@@ -19,6 +19,7 @@ import LogoutVariant from 'mdi-material-ui/LogoutVariant'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
 import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline'
 import useAuth from 'src/@core/utils/useAuth'
+import { getFile } from 'src/@core/utils/general'
 
 // ** Styled Components
 const BadgeContentSpan = styled('span')(({ theme }) => ({
@@ -46,8 +47,8 @@ const UserDropdown = () => {
   }, [])
 
   const getImage = async (file: any) => {
-    var res = await getProfileImage(file)
-    // console.log('Image', res)
+    var res = await getFile(file)
+    console.log('Image', file)
     setProfileImg(`data:image/png;base64,${res}`)
   }
   // ** Hooks

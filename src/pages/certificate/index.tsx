@@ -81,6 +81,7 @@ const CertificateGenerator = () => {
         setCourse('')
         setTitle('')
         setStudent('')
+        setShowPreview(false)
       })
     }
   }
@@ -99,7 +100,10 @@ const CertificateGenerator = () => {
         </div>
 
         <p className='issuedBy'>
-          Issued by <span className='bold'>{user?.first_name + ' ' + user?.last_name}</span>
+          Issued by{' '}
+          <span className='bold'>
+            {user?.first_name ? user?.first_name : '' + ' ' + user?.last_name ? user?.last_name : ''}
+          </span>
         </p>
         {date && (
           <p className='date'>

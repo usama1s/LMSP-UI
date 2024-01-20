@@ -13,6 +13,8 @@ import { Viewer } from '@react-pdf-viewer/core'
 // Import styles
 import '@react-pdf-viewer/core/lib/styles/index.css'
 import '@react-pdf-viewer/default-layout/lib/styles/index.css'
+import useAuth from 'src/@core/utils/useAuth'
+import { getFile } from 'src/@core/utils/general'
 
 // Import your styles or any other necessary components
 
@@ -34,32 +36,40 @@ interface Details {
 }
 
 const DetailPage: React.FC = () => {
+  const { customApiCall } = useAuth()
   const defaultLayoutPluginInstance = defaultLayoutPlugin()
   const router = useRouter()
   const { id } = router.query as { id: string }
+  const [info, setInfo] = useState<any>(null)
 
   const [details, setDetails] = useState<Details | null>(null)
 
   useEffect(() => {
     const fetchDetails = async () => {
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      console.log('id', id)
+      await customApiCall('get', `/admin/get-item/${id}`).then(async r => {
+        console.log('Article Inventoty', r)
+        var infoFile = await getFile(r.information_file)
 
-      // Mock data - replace with your actual API call
-      const mockData: Details = {
-        title: `Sample Title ${id}`,
-        description: `This is a sample description for item ${id}.`,
-        images: [
-          'https://via.placeholder.com/800x400',
-          'https://via.placeholder.com/800x400',
-          'https://via.placeholder.com/800x400'
-        ],
-        video: '/images/dummy.mp4',
-        pdf: `https://drive.google.com/file/d/1anRzwK5ZJFBHAYV334i3ERvrNJdU_sh8/view?usp=sharing`,
-        file: `https://drive.google.com/file/d/1anRzwK5ZJFBHAYV334i3ERvrNJdU_sh8/view?usp=sharing`,
-        image: '/images/dummyImage.jpeg'
-      }
+        setInfo(`data:application/pdf;base64,${infoFile}`)
 
-      setDetails(mockData)
+        // Mock data - replace with your actual API call
+        const mockData: Details = {
+          title: `Sample Title ${id}`,
+          description: `This is a sample description for item ${id}.`,
+          images: [
+            'https://via.placeholder.com/800x400',
+            'https://via.placeholder.com/800x400',
+            'https://via.placeholder.com/800x400'
+          ],
+          video: '/images/dummy.mp4',
+          pdf: `https://drive.google.com/file/d/1anRzwK5ZJFBHAYV334i3ERvrNJdU_sh8/view?usp=sharing`,
+          file: `https://drive.google.com/file/d/1anRzwK5ZJFBHAYV334i3ERvrNJdU_sh8/view?usp=sharing`,
+          image: '/images/dummyImage.jpeg'
+        }
+
+        setDetails(mockData)
+      })
     }
 
     if (id) {
@@ -99,7 +109,7 @@ const DetailPage: React.FC = () => {
           </Typography>
           <Box maxWidth={600}>
             <Viewer
-              fileUrl={'/images/resume.pdf'}
+              fileUrl={info}
               plugins={[
                 // Register plugins
                 defaultLayoutPluginInstance

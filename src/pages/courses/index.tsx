@@ -31,7 +31,6 @@ const Courses: React.FC = () => {
 
   const getCoursesByUserId = async (user_id: number) => {
     await customApiCall('get', `student/get-course/${user_id}`).then(r => {
-      console.log('courses', r, 'vv', user_id)
       const updatedCourses = r?.map((course: any, _) => ({
         id: course?.course_id,
         courseName: course?.course_name
@@ -53,7 +52,6 @@ const Courses: React.FC = () => {
   return (
     <Card>
       <div style={{ margin: 20 }}>
-        {/* Add any additional UI elements such as filters if needed */}
         <div>
           <Typography variant='h6'>Courses</Typography>
         </div>

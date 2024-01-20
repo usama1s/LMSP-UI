@@ -70,12 +70,6 @@ const navigation = (): VerticalNavItemsType => {
         title: 'Courses',
         icon: Message,
         path: '/courses'
-      },
-
-      {
-        title: 'Attendance',
-        icon: Message,
-        path: '/attendance-details'
       }
     ]
   } else if (user?.role == 1 && user?.admin_types.includes(1)) {
@@ -146,12 +140,12 @@ const navigation = (): VerticalNavItemsType => {
         title: 'Article Inventory',
         icon: Article,
         path: '/article-inventory'
-      },
-      {
-        title: 'Library',
-        icon: Book,
-        path: '/library'
       }
+      // {
+      //   title: 'Library',
+      //   icon: Book,
+      //   path: '/library'
+      // }
     ]
   }
   return [

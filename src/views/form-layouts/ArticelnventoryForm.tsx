@@ -71,7 +71,8 @@ const formats = [
 var htmlCode = null
 var htmlCodeFailureReson = null
 
-const ArticleInventoryForm = ({ selectedArticleToEdit }: any) => {
+const ArticleInventoryForm = ({ selectedArticleToEdit, title }: any) => {
+  console.log(selectedArticleToEdit)
   const { customApiCall } = useAuth()
   const [user, setUser] = useState(null)
   // ** States
@@ -104,6 +105,10 @@ const ArticleInventoryForm = ({ selectedArticleToEdit }: any) => {
   useEffect(() => {
     if (selectedArticleToEdit) {
       console.log(selectedArticleToEdit)
+      setFormData({
+        ...formData,
+        title: title
+      })
     }
   }, [])
 
@@ -270,7 +275,7 @@ const ArticleInventoryForm = ({ selectedArticleToEdit }: any) => {
               />
             </Grid>
 
-            <Grid item xs={12} sm={4}>
+            {/*  <Grid item xs={12} sm={4}>
               <TextField
                 fullWidth
                 type='text'
@@ -344,8 +349,8 @@ const ArticleInventoryForm = ({ selectedArticleToEdit }: any) => {
                   htmlCode = e
                 }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Grid> */}
+            {/* <Grid item xs={12} sm={6}>
               <QuillNoSSRWrapper
                 theme='snow'
                 modules={modules}
@@ -355,13 +360,13 @@ const ArticleInventoryForm = ({ selectedArticleToEdit }: any) => {
                   htmlCodeFailureReson = e
                 }}
               />
-            </Grid>
+            </Grid> */}
             <Grid item xs={12}>
               <Divider sx={{ marginBottom: 0 }} />
             </Grid>
             <Grid item xs={12}>
               <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                2. Related Files
+                1. Related Files
               </Typography>
             </Grid>
             <Grid item xs={12}>

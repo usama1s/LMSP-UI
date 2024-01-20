@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
-import { FormControl, InputLabel, MenuItem, Select, Typography, LinearProgress, Box } from '@mui/material'
+import { FormControl, InputLabel, MenuItem, Select, Typography, Box } from '@mui/material'
+import useAuth from 'src/@core/utils/useAuth'
+import ApexCharts from 'react-apexcharts'
 
 type Course = {
   id: string
@@ -19,40 +20,14 @@ type AssignmentGrade = {
   grade: number
 }
 
-const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID', width: 70 },
-  { field: 'name', headerName: 'Name', width: 120 },
-  { field: 'grade', headerName: 'Grade', width: 120 },
-  {
-    field: 'progress',
-    headerName: 'Progress',
-    width: 200,
-    renderCell: params => (
-      <LinearProgress
-        variant='determinate'
-        value={params.value as number}
-        color={getColorForGrade(params.value as number)}
-        sx={{ height: 10, width: 100, borderRadius: 5 }}
-      />
-    )
-  }
-]
-
-const getColorForGrade = (grade: number): 'primary' | 'secondary' | 'error' => {
-  // Adjust the grade ranges and colors as needed
-  if (grade >= 90) {
-    return 'primary' // Green color for high grades
-  } else if (grade >= 70) {
-    return 'secondary' // Yellow color for moderate grades
-  } else {
-    return 'error' // Red color for low grades
-  }
-}
-
 const GradesComponent: React.FC = () => {
+  const { customApiCall } = useAuth()
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
-  const [quizGrades, setQuizGrades] = useState<QuizGrade[]>([])
-  const [assignmentGrades, setAssignmentGrades] = useState<AssignmentGrade[]>([])
+  const [averageMarks, setAverageMarks] = useState<{
+    avgAssignmentMarks: string
+    avgQuizMarks: string
+    avgAttendance: string
+  } | null>(null)
 
   const handleCourseChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const courseId = event.target.value as string
@@ -61,19 +36,34 @@ const GradesComponent: React.FC = () => {
   }
 
   useEffect(() => {
-    const dummyQuizGrades: QuizGrade[] = [
-      { id: 1, quizName: 'Quiz 1', grade: 90 },
-      { id: 2, quizName: 'Quiz 2', grade: 60 }
-    ]
+    const user = localStorage.getItem('user')
 
-    const dummyAssignmentGrades: AssignmentGrade[] = [
-      { id: 1, assignmentTitle: 'Assignment 1', grade: 70 },
-      { id: 2, assignmentTitle: 'Assignment 2', grade: 30 }
-    ]
+    if (user && user !== undefined) {
+      const loggedInUser = JSON.parse(user)
 
-    setQuizGrades(dummyQuizGrades)
-    setAssignmentGrades(dummyAssignmentGrades)
-  }, [selectedCourse])
+      getGradesOfStudent(loggedInUser?.student_id)
+    }
+  }, [])
+
+  const getGradesOfStudent = async (studentId: number) => {
+    try {
+      await customApiCall('get', `admin/get-stats/${studentId}`).then(r => {
+        setAverageMarks(r)
+      })
+    } catch (err) {
+      alert('Some error occurred')
+    }
+  }
+
+  const getGradesOfStudentBySubject = async (studentId: number, subjectId: number) => {
+    try {
+      await customApiCall('get', `admin/get-stats/${studentId}/${subjectId}`).then(r => {
+        setAverageMarks(r)
+      })
+    } catch (err) {
+      alert('Some error occurred')
+    }
+  }
 
   const courses: Course[] = [
     { id: 'course1', name: 'Course 1' },
@@ -81,10 +71,31 @@ const GradesComponent: React.FC = () => {
     // Add more courses as needed
   ]
 
+  const areaChartData = {
+    options: {
+      chart: {
+        id: 'area-chart',
+        type: 'area'
+      },
+      xaxis: {
+        categories: ['Average Assignment Marks', 'Average Quiz Marks', 'Average Attendance']
+      }
+    },
+    series: [
+      {
+        name: 'Average',
+        data: [
+          averageMarks?.avgAssignmentMarks ? parseFloat(averageMarks.avgAssignmentMarks) : 0,
+          averageMarks?.avgQuizMarks ? parseFloat(averageMarks.avgQuizMarks) : 0,
+          averageMarks?.avgAttendance ? parseFloat(averageMarks.avgAttendance) : 0
+        ]
+      }
+    ]
+  }
   return (
     <div style={{ margin: 20 }}>
-      <FormControl fullWidth style={{ marginBottom: '1rem' }}>
-        <InputLabel>Course</InputLabel>
+      {/* <FormControl fullWidth style={{ marginBottom: '1rem' }}>
+        <InputLabel>Subjects</InputLabel>
         <Select label='Course' value={selectedCourse?.id || ''} onChange={handleCourseChange}>
           {courses.map(course => (
             <MenuItem key={course.id} value={course.id}>
@@ -92,32 +103,25 @@ const GradesComponent: React.FC = () => {
             </MenuItem>
           ))}
         </Select>
-      </FormControl>
+      </FormControl> */}
 
-      {/* Display quiz grades with heading */}
+      {/* Display charts */}
       <Typography variant='h5' gutterBottom>
-        Quizes
+        Average Marks
       </Typography>
-      <div style={{ height: 200, width: '100%' }}>
-        <DataGrid
-          rows={quizGrades.map(grade => ({ ...grade, name: grade.quizName, progress: grade.grade }))}
-          columns={columns}
-          pageSize={5}
-          disableSelectionOnClick
-        />
-      </div>
-      <Box style={{ height: 20 }} />
-      {/* Display assignment grades with heading */}
-      <Typography variant='h5' gutterBottom>
-        Assignments
-      </Typography>
-      <div style={{ height: 200, width: '100%' }}>
-        <DataGrid
-          rows={assignmentGrades.map(grade => ({ ...grade, name: grade.assignmentTitle, progress: grade.grade }))}
-          columns={columns}
-          pageSize={5}
-          disableSelectionOnClick
-        />
+      <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+        {/* <div style={{ width: '45%' }}>
+          <ApexCharts
+            options={quizChartData.options}
+            series={quizChartData.series}
+            type='bar'
+            height={300}
+            width={300} // Add width to make sure the chart is visible
+          />
+        </div> */}
+        <div style={{ width: '100%' }}>
+          <ApexCharts options={areaChartData.options} series={areaChartData.series} type='area' height={300} />
+        </div>
       </div>
     </div>
   )

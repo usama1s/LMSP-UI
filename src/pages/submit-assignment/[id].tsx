@@ -16,6 +16,7 @@ import {
 import { styled } from '@mui/material/styles'
 import useAuth from 'src/@core/utils/useAuth'
 import { useRouter } from 'next/router'
+import { getFile } from 'src/@core/utils/general'
 
 const StudentAssignmentPage: React.FC = () => {
   const router = useRouter()
@@ -45,6 +46,16 @@ const StudentAssignmentPage: React.FC = () => {
     })
   }
 
+  const downloadFile = (path: string) => {
+    // Replace the file path with the correct path on your server
+    const filePath = path
+    const link = document.createElement('a')
+    link.href = filePath
+    link.download = 'downloaded_file.pdf'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null
     setPdfFile(file)
@@ -65,18 +76,54 @@ const StudentAssignmentPage: React.FC = () => {
     return new Blob([ab], { type: mimeString })
   }
 
-  const downloadQuestionFile = () => {
-    const questionFileBase64 = assignmentQuestion?.assignment_file
+  function isValidBase64(str) {
+    try {
+      // Attempt to decode the base64 string
+      atob(str)
+      return true
+    } catch (e) {
+      // If an error occurs, the string is not valid base64
+      return false
+    }
+  }
 
-    if (questionFileBase64) {
-      const blob = dataURItoBlob(questionFileBase64)
-      const url = URL.createObjectURL(blob)
+  const handleDownload = async path => {
+    const base64 = await getFile(path)
+
+    if (base64) {
       const a = document.createElement('a')
-      a.href = url
-      a.download = `${assignmentQuestion?.assignment_title}.pdf`
+      a.href = `data:application/pdf;base64,${base64}`
+      a.download = 'assignment.pdf'
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
+    }
+  }
+  const downloadQuestionFile = async () => {
+    const path = assignmentQuestion?.assignment_file
+    // console.log('Questionnnnnnnnnnnnnn', questionFileBase64)
+    // downloadFile(questionFileBase64)
+    const base = await getFile(path).then(r => {
+      return r
+    })
+    console.log('BASEE', base)
+    if (base) {
+      const a = document.createElement('a')
+      a.href = `data:application/pdf;base64,${base}`
+      a.download = 'assignment.pdf'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      // console.log(base)
+
+      // const blob = dataURItoBlob(base)
+      // const url = URL.createObjectURL(blob)
+      // const a = document.createElement('a')
+      // a.href = url
+      // a.download = `${assignmentQuestion?.assignment_title}.pdf`
+      // document.body.appendChild(a)
+      // a.click()
+      // document.body.removeChild(a)
     }
   }
 
@@ -115,7 +162,8 @@ const StudentAssignmentPage: React.FC = () => {
     }
     var retrievedDataJSON = localStorage.getItem('assignmentData')
     var retrievedData = JSON.parse(retrievedDataJSON)
-    setAssignmentQuestion(retrievedData[0])
+
+    setAssignmentQuestion(retrievedData)
   }, [])
 
   return (

@@ -4,7 +4,6 @@ export const getFile = async (filename: string) => {
   try {
     const lastIndex = filename.lastIndexOf('\\')
     const result = filename.substring(lastIndex + 1)
-
     const response = await api.get(`/general/uploads/${path.basename(result)}`)
     return response?.data?.base64File
   } catch (error) {

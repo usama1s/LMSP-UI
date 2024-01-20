@@ -8,7 +8,7 @@ import SuccessModal from 'src/views/components/SuccessModel'
 interface Question {
   question: string
   options: string[]
-  correctOption: string
+  answer: string
   selectedOption?: string | null
   isCorrect?: boolean | null
 }
@@ -50,7 +50,7 @@ const StudentQuizPage: React.FC = () => {
   const handleSubmit = async () => {
     let obtained = 0
     questions.forEach(q => {
-      if (q.selectedOption === q.correctOption) {
+      if (q.selectedOption === q.answer) {
         obtained++
         q.isCorrect = true
       } else {
@@ -74,7 +74,6 @@ const StudentQuizPage: React.FC = () => {
 
     await customApiCall('post', 'student/submit-quiz', dataToSend).then(() => {
       setShowSuccessModal(true)
-      localStorage.removeItem('quizData')
     })
   }
 
@@ -97,7 +96,6 @@ const StudentQuizPage: React.FC = () => {
       } else {
         window.removeEventListener('beforeunload', handleBeforeUnload)
         document.removeEventListener('visibilitychange', handleVisibilityChange)
-
         handleSubmit()
       }
     }
@@ -112,7 +110,6 @@ const StudentQuizPage: React.FC = () => {
       } else {
         router.events.off('beforeHistoryChange', handleRouteChange)
         window.removeEventListener('beforeunload', handleBeforeUnload)
-
         handleSubmit()
       }
     }
@@ -137,7 +134,7 @@ const StudentQuizPage: React.FC = () => {
       var loggedInUser = JSON.parse(user)
       setUser(loggedInUser)
     }
-    var retrievedDataJSON = localStorage.getItem('quizData')
+    var retrievedDataJSON = localStorage.getItem('finalPaper')
     var retrievedData = JSON.parse(retrievedDataJSON)
     const updatedQuestions = retrievedData.map((question: Question) => ({
       ...question,
@@ -165,16 +162,38 @@ const StudentQuizPage: React.FC = () => {
             <Grid item xs={12}>
               <Typography variant='body1'>{q.question}</Typography>
             </Grid>
-            {q.options.map((option, optionIndex) => (
-              <Grid item xs={12} key={optionIndex}>
-                <Radio
-                  checked={q.selectedOption === optionIndex.toString()}
-                  onChange={() => handleOptionChange(index, optionIndex)}
-                  disabled={q.selectedOption !== null}
-                />
-                <span>{option}</span>
-              </Grid>
-            ))}
+            <Grid item xs={12}>
+              <Radio
+                checked={q.selectedOption === '0'}
+                onChange={() => handleOptionChange(index, 0)}
+                disabled={q.selectedOption !== null}
+              />
+              <span>{q.option_1}</span>
+            </Grid>
+            <Grid item xs={12}>
+              <Radio
+                checked={q.selectedOption === '1'}
+                onChange={() => handleOptionChange(index, 1)}
+                disabled={q.selectedOption !== null}
+              />
+              <span>{q.option_2}</span>
+            </Grid>
+            <Grid item xs={12}>
+              <Radio
+                checked={q.selectedOption === '2'}
+                onChange={() => handleOptionChange(index, 2)}
+                disabled={q.selectedOption !== null}
+              />
+              <span>{q.option_3}</span>
+            </Grid>
+            <Grid item xs={12}>
+              <Radio
+                checked={q.selectedOption === '3'}
+                onChange={() => handleOptionChange(index, 3)}
+                disabled={q.selectedOption !== null}
+              />
+              <span>{q.option_4}</span>
+            </Grid>
           </Grid>
         </Paper>
       ))}

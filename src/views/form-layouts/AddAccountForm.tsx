@@ -166,6 +166,7 @@ const AddAccountForm = ({ selectedUserToEdit }: any) => {
     const reader = new FileReader()
     if (files && files.length !== 0) {
       reader.onload = () => {
+        console.log(reader.result as string)
         setImageFile(reader.result as string)
       }
       reader.readAsDataURL(files[0])
@@ -294,13 +295,7 @@ const AddAccountForm = ({ selectedUserToEdit }: any) => {
               <Box>
                 <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
                   Upload Photo
-                  <input
-                    hidden
-                    type='file'
-                    onChange={onChange}
-                    accept='image/png, image/jpeg'
-                    id='account-settings-upload-image'
-                  />
+                  <input hidden type='file' onChange={onChange} accept='image/*' id='account-settings-upload-image' />
                 </ButtonStyled>
                 <ResetButtonStyled
                   color='error'

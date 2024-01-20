@@ -56,6 +56,7 @@ const ArticleInventoryTable = () => {
   const [qr, setQr] = useState<string | null>(null)
   const [userIp, setUserIp] = useState(null)
   const [selectedArticleForEdit, setSelectedArticleForEdit] = useState(false)
+  const [selectedArticle, setSelectedArticle] = useState(false)
 
   const handleEdit = () => {
     setSelectedArticleForEdit(true)
@@ -80,25 +81,25 @@ const ArticleInventoryTable = () => {
     { id: 'ID', label: 'ID', minWidth: 170 },
 
     { id: 'title', label: 'Title', minWidth: 170 },
-    { id: 'make', label: 'Make', minWidth: 100 },
-    {
-      id: 'model',
-      label: 'Model',
-      minWidth: 170,
-      align: 'right'
-    },
-    {
-      id: 'expiryDate',
-      label: 'Expiry Date',
-      minWidth: 170,
-      align: 'right'
-    },
-    {
-      id: 'inductionDate',
-      label: 'Induction Date',
-      minWidth: 170,
-      align: 'right'
-    },
+    // { id: 'make', label: 'Make', minWidth: 100 },
+    // {
+    //   id: 'model',
+    //   label: 'Model',
+    //   minWidth: 170,
+    //   align: 'right'
+    // },
+    // {
+    //   id: 'expiryDate',
+    //   label: 'Expiry Date',
+    //   minWidth: 170,
+    //   align: 'right'
+    // },
+    // {
+    //   id: 'inductionDate',
+    //   label: 'Induction Date',
+    //   minWidth: 170,
+    //   align: 'right'
+    // },
     {
       id: 'downloadQr',
       label: 'Download Qr',
@@ -119,7 +120,7 @@ const ArticleInventoryTable = () => {
   }
 
   const downloadQRCode = async (id: any, title: any) => {
-    const qrCodeText = `http://192.168.18.127:3000/pages/article-detail/?id=${id}`
+    const qrCodeText = `http://192.168.1.8:3000/pages/article-detail/?id=${id}`
 
     QRCode?.toDataURL(
       qrCodeText,
@@ -187,6 +188,7 @@ const ArticleInventoryTable = () => {
                                 variant='contained'
                                 color='primary'
                                 onClick={() => {
+                                  setSelectedArticle(row?.title)
                                   setSelectedArticleForEdit(true)
                                 }}
                                 sx={{ marginLeft: 3 }}
@@ -212,7 +214,11 @@ const ArticleInventoryTable = () => {
         </Table>
       </TableContainer>
       {selectedArticleForEdit && (
-        <EditModal selectedArticleForEdit={selectedArticleForEdit} onClose={() => setSelectedArticleForEdit(false)} />
+        <EditModal
+          selectedArticleForEdit={selectedArticleForEdit}
+          title={selectedArticle}
+          onClose={() => setSelectedArticleForEdit(false)}
+        />
       )}
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}

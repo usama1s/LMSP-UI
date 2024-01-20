@@ -1,105 +1,105 @@
 import React, { useState, useEffect } from 'react'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { Box, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material'
-import Chart from 'react-apexcharts' // Import Chart from react-apexcharts (apexcharts-clevision)
+import Chart from 'react-apexcharts'
 import useAuth from 'src/@core/utils/useAuth'
 
 type AttendanceData = {
-  id: number
-  date: string
-  day: string
-  status: string
+  student_attendence_id: number
+  student_id: number
+  attendence_status: number
+  attendence_date: string
+  subject_id: number
+  subject_name?: string
 }
 
 const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID', width: 70 },
-  { field: 'date', headerName: 'Date', width: 120 },
-  { field: 'day', headerName: 'Day', width: 120 },
-  { field: 'status', headerName: 'Status', width: 120 }
-]
-
-const dummyAttendanceData: AttendanceData[] = [
-  { id: 1, date: '2023-11-01', day: 'Monday', status: 'Present' },
-  { id: 2, date: '2023-11-05', day: 'Friday', status: 'Absent' },
-  { id: 3, date: '2023-11-10', day: 'Wednesday', status: 'Present' }
-  // Add more dummy data as needed
-]
-
-const AttendanceComponent: React.FC = () => {
-  const { customApiCall } = useAuth()
-  const [selectedCourse, setSelectedCourse] = useState<string>('')
-
-  const [selectedProgram, setSelectedProgram] = useState<string>('')
-  const [courses, setCourses] = useState([])
-  const [filterOption, setFilterOption] = useState<string>('currentMonth')
-  const [attendanceData, setAttendanceData] = useState<{ absents: number; presents: number }>({
-    absents: 40,
-    presents: 80
-  })
-  const [programs, setPrograms] = useState([])
-
-  const handleProgramChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setSelectedProgram(event.target.value as string)
+  { field: 'attendence_date', headerName: 'Date', width: 120 },
+  {
+    field: 'day',
+    headerName: 'Day',
+    width: 120,
+    valueGetter: params => {
+      const date = new Date(params.row.attendence_date)
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+      return days[date.getDay()]
+    }
+  },
+  {
+    field: 'attendence_status',
+    headerName: 'Status',
+    width: 120,
+    valueGetter: params => {
+      console.log('Params', params)
+      return params.value
+    }
   }
+]
+
+type AttendanceComponentProps = {
+  attendanceDataProp: AttendanceData[]
+}
+
+const AttendanceComponent: React.FC<AttendanceComponentProps> = ({ attendanceDataProp }) => {
+  const { customApiCall } = useAuth()
+  const [selectedCourse, setSelectedCourse] = useState<number | string>('')
+  const [courses, setCourses] = useState<AttendanceData[]>([])
+  const [attendanceData, setAttendanceData] = useState<{ absents: number; presents: number }>({
+    absents: 0,
+    presents: 0
+  })
+
   const handleCourseChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setSelectedCourse(event.target.value as string)
+    setSelectedCourse(event.target.value as number | string)
   }
 
   const getCourses = async () => {
-    await customApiCall('get', 'admin/get-all-courses').then(r => {
-      console.log('courses', r)
-      setCourses(r)
-    })
-  }
-  const getAllProgramPlans = async () => {
-    await customApiCall('get', 'admin/get-all-program_plan').then(r => {
-      setPrograms(r)
-    })
-  }
-
-  const getAttendanceData = async () => {
-    const response = await customApiCall('get', 'attendance/get-student-attendance', {
-      courseId: selectedProgram,
-      filterOption
-    })
-
-    // Update attendanceData with the actual data from the API response
-    setAttendanceData({
-      absents: 20,
-      presents: 80
-    })
+    try {
+      const response = await customApiCall('get', 'admin/get-all-courses')
+      setCourses(response)
+    } catch (error) {
+      console.error('Error fetching courses:', error)
+    }
   }
 
   useEffect(() => {
     getCourses()
-    getAllProgramPlans()
-  }, [selectedProgram, filterOption])
+  }, [])
 
   useEffect(() => {
-    // Fetch attendance data when the selected program or filter option changes
-    if (selectedProgram) {
-      //   getAttendanceData()
-    }
-  }, [selectedProgram, filterOption])
+    // Filter the attendance data based on the selected subject
+    const filteredData = selectedCourse
+      ? attendanceDataProp.filter(data => data.subject_id === selectedCourse)
+      : attendanceDataProp
+
+    setAttendanceData({
+      absents: filteredData.filter(data => data.attendence_status === 0).length,
+      presents: filteredData.filter(data => data.attendence_status === 1).length
+    })
+  }, [attendanceDataProp, selectedCourse])
+
+  const getUniqueSubjects = (data: AttendanceData[]) => {
+    const uniqueSubjects: AttendanceData[] = []
+    const subjectIdsSet = new Set<number>()
+
+    data.forEach(item => {
+      if (!subjectIdsSet.has(item.subject_id)) {
+        subjectIdsSet.add(item.subject_id)
+        uniqueSubjects.push(item)
+      }
+    })
+
+    return uniqueSubjects
+  }
 
   return (
     <div style={{ margin: 20, height: '100%', backgroundColor: 'white', padding: 20 }}>
       <FormControl fullWidth style={{ marginBottom: '1rem' }}>
-        <InputLabel>Program</InputLabel>
-        <Select label='Program' value={selectedProgram} onChange={handleProgramChange}>
-          {programs.map((item, index) => (
-            <MenuItem value={item?.program_id} key={index}>
-              {item?.program_name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControl fullWidth style={{ marginBottom: '1rem' }}>
-        <InputLabel>Courses</InputLabel>
-        <Select label='Courses' value={selectedCourse} onChange={handleCourseChange}>
-          {courses.map((item, index) => (
-            <MenuItem value={item?.course_id} key={index}>
-              {item?.course_name}
+        <InputLabel>Subjects</InputLabel>
+        <Select label='Subjects' value={selectedCourse} onChange={handleCourseChange}>
+          {getUniqueSubjects(attendanceDataProp).map(item => (
+            <MenuItem key={item.subject_id} value={item.subject_id}>
+              {item.subject_name}
             </MenuItem>
           ))}
         </Select>
@@ -123,7 +123,19 @@ const AttendanceComponent: React.FC = () => {
 
       <Box style={{ height: 40 }} />
       <div style={{ height: 400, width: '100%' }}>
-        <DataGrid rows={dummyAttendanceData} columns={columns} pageSize={5} disableSelectionOnClick />
+        <DataGrid
+          rows={
+            selectedCourse
+              ? attendanceDataProp
+                  .filter(data => data.subject_id === selectedCourse)
+                  .map(data => ({ ...data, attendence_status: data.attendence_status == 1 ? 'Present' : 'Absent' }))
+              : []
+          }
+          columns={columns}
+          pageSize={5}
+          disableSelectionOnClick
+          getRowId={row => row.student_attendence_id}
+        />
       </div>
     </div>
   )

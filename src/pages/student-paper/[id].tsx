@@ -13,7 +13,7 @@ interface Question {
   isCorrect?: boolean | null
 }
 
-const StudentQuizPage: React.FC = () => {
+const StudentPaperPage: React.FC = () => {
   const router = useRouter()
   const { id } = router.query
   const { customApiCall } = useAuth()
@@ -65,16 +65,16 @@ const StudentQuizPage: React.FC = () => {
 
     const dataToSend = {
       student_id: user?.student_id,
-      quiz_id: id,
+      paper_id: id,
       total_marks: questions.length,
       obtained_marks: obtained,
       grade: grade,
       percentage: (obtainedMarks / totalMarks) * 100
     }
 
-    await customApiCall('post', 'student/submit-quiz', dataToSend).then(() => {
+    await customApiCall('post', 'student/submit-paper', dataToSend).then(() => {
       setShowSuccessModal(true)
-      localStorage.removeItem('quizData')
+      localStorage.removeItem('paperData')
     })
   }
 
@@ -89,7 +89,7 @@ const StudentQuizPage: React.FC = () => {
   const handleRouteChange = (url: string) => {
     if (questions.some(q => q.selectedOption === null)) {
       const confirmNavigation = window.confirm(
-        `You can't open the quiz again if you leave. Are you sure you want to leave?`
+        `You can't open the paper again if you leave. Are you sure you want to leave?`
       )
       if (!confirmNavigation) {
         router.events.emit('routeChangeError')
@@ -137,7 +137,7 @@ const StudentQuizPage: React.FC = () => {
       var loggedInUser = JSON.parse(user)
       setUser(loggedInUser)
     }
-    var retrievedDataJSON = localStorage.getItem('quizData')
+    var retrievedDataJSON = localStorage.getItem('paperData')
     var retrievedData = JSON.parse(retrievedDataJSON)
     const updatedQuestions = retrievedData.map((question: Question) => ({
       ...question,
@@ -149,7 +149,7 @@ const StudentQuizPage: React.FC = () => {
   return (
     <Container maxWidth='lg' style={{ marginTop: '2rem' }}>
       <Typography variant='h4' gutterBottom>
-        Student Quiz
+        Student Paper
       </Typography>
 
       {questions.map((q, index) => (
@@ -203,4 +203,4 @@ const StudentQuizPage: React.FC = () => {
   )
 }
 
-export default StudentQuizPage
+export default StudentPaperPage
