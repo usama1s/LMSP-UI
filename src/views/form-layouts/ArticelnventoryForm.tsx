@@ -199,7 +199,7 @@ const ArticleInventoryForm = ({ selectedArticleToEdit, title }: any) => {
         images: await Promise.all(
           imageFiles.map(async (file, index) => {
             const base64Data = await readFileAsBase64(file)
-            return [`image_${index + 1}`, base64Data]
+            return base64Data
           })
         )
       }
