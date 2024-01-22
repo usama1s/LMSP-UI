@@ -118,7 +118,7 @@ const AttendancePage: React.FC = () => {
       formattedDate.setDate(selectedDate.getDate() + 1) // Fix date issue
 
       const dataToSend = {
-        attendence_date: formattedDate.toISOString().split('T')[0],
+        attendence_date: selectedDate.toISOString().split('T')[0],
         students: students,
         subject_id: selectedSubject
       }
@@ -127,7 +127,7 @@ const AttendancePage: React.FC = () => {
         alert(r)
         // Reset data after submission
         setAttendanceData([])
-        setSelectedDate(null)
+        setSelectedDate(new Date())
         setSelectedSubject('')
       })
     }

@@ -31,6 +31,7 @@ const StudentDashboard = () => {
   const [modifiedPaper, setModifiedPaper] = useState({})
   const [modifiedQuiz, setModifiedQuiz] = useState({})
   const [assignmentsObj, setAssignmentsObj] = useState([])
+  const [scheduledClasses, setScheduledClasses] = useState([])
 
   const [attendanceData, setAttendanceData] = useState<any>(null)
 
@@ -54,12 +55,20 @@ const StudentDashboard = () => {
     })
   }
 
+  const getScheduledClasses = async (studentId: number) => {
+    await customApiCall('get', `instructor/get-scheduled-classes/${studentId}`).then(r => {
+      console.log('Scheduled Classes', r)
+      setScheduledClasses(r?.scheduledClasses)
+    })
+  }
+
   useEffect(() => {
     var user = localStorage.getItem('user')
     if (user && user != undefined) {
       var loggedInUser = JSON.parse(user)
       setUser(loggedInUser)
       getCourseDetailByID(loggedInUser?.student_id)
+      getScheduledClasses(loggedInUser?.student_id)
     }
   }, [])
   useEffect(() => {}, [])
@@ -147,6 +156,17 @@ const StudentDashboard = () => {
     router.push(`/student-paper/${paperId}`)
   }
 
+  const formatClassTime = classTime => {
+    const options = {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+      timeZone: 'Asia/Karachi' // Pakistan time zone
+    }
+
+    return new Date(classTime).toLocaleString('en-US', options)
+  }
+
   return (
     <Card>
       <TabContext value={value}>
@@ -162,6 +182,7 @@ const StudentDashboard = () => {
           <Tab value='Grades' label='Grades' />
           <Tab value='Quizzes' label='Quizzes' />
           <Tab value='Assignments' label='Assignments' />
+          <Tab value='ScheduledClasses' label='Scheduled Classes' />
         </TabListWrapper>
 
         <TabPanel sx={{ p: 10 }} value='CourseInfo'>
@@ -282,6 +303,35 @@ const StudentDashboard = () => {
         </TabPanel>
         <TabPanel sx={{ p: 10 }} value='Grades'>
           <GradesComponent />
+        </TabPanel>
+
+        <TabPanel sx={{ p: 10 }} value='ScheduledClasses'>
+          {scheduledClasses.map(scheduledClass => (
+            <Paper elevation={3} style={{ padding: '16px' }} key={scheduledClass.schedule_id}>
+              {console.log('Scheduled Classes', scheduledClasses)}
+              <Typography variant='h4' gutterBottom>
+                {scheduledClass.subject_name}
+              </Typography>
+              <Typography variant='body1'>
+                <strong>Class Link:</strong>
+                <a href={scheduledClass.classeLink} target='_blank' rel='noopener noreferrer'>
+                  {scheduledClass.classeLink}
+                </a>
+              </Typography>
+              <Typography variant='body1'>
+                <strong>Class Date:</strong> {scheduledClass.classDate}
+              </Typography>
+              <Typography variant='body1'>
+                <strong>Class Time:</strong> {formatClassTime(scheduledClass.classTime)}
+              </Typography>
+              <Typography variant='body1'>
+                <strong>Module:</strong> {scheduledClass.module_name}
+              </Typography>
+              <Typography variant='body1'>
+                <strong>Course:</strong> {scheduledClass.course_name}
+              </Typography>
+            </Paper>
+          ))}
         </TabPanel>
       </TabContext>
     </Card>

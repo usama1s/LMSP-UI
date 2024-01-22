@@ -31,8 +31,8 @@ const CreateClass: React.FC = () => {
   const [dueDate, setDueDate] = useState<Date | null>(null)
   const [pdfFile, setPdfFile] = useState<File | null>(null)
   const [classDetails, setclassDetails] = useState({
-    classlink: '',
-    program_plan_id: '',
+    classeLink: '',
+    subject_id: '',
     classDate: '',
     classTime: ''
   })
@@ -80,21 +80,33 @@ const CreateClass: React.FC = () => {
   const handleSubmit = async () => {
     console.log(classDetails)
 
-    if (
-      !classDetails.classDate ||
-      !classDetails.classTime ||
-      !classDetails.classlink ||
-      !classDetails.program_plan_id
-    ) {
+    if (!classDetails.classDate || !classDetails.classTime || !classDetails.classeLink || !classDetails.subject_id) {
       alert('Please fill all details')
     } else {
       const assignmentData = {
-        program_plan_id: classDetails.program_plan_id,
-        class_date: classDetails.classDate,
-        class_time: classDetails.classTime,
-        class_link: classDetails.classlink
+        subject_id: classDetails.subject_id,
+        classDate: classDetails.classDate,
+        classTime: classDetails.classTime.toString(),
+        classeLink: classDetails.classeLink
       }
       console.log(classDetails)
+      await customApiCall('post', 'instructor/schedule-class', assignmentData)
+        .then(r => {
+          if (r?.error) {
+            alert(r?.error)
+          } else {
+            alert(r?.response)
+          }
+          setclassDetails({
+            classeLink: '',
+            subject_id: '',
+            classDate: '',
+            classTime: ''
+          })
+        })
+        .catch(err => {
+          console.log(err)
+        })
     }
   }
   const CustomInput = forwardRef((props: TextFieldProps, ref) => {
@@ -135,9 +147,9 @@ const CreateClass: React.FC = () => {
               <InputLabel>Select Subject</InputLabel>
               <Select
                 label='Select Subject'
-                value={classDetails.program_plan_id}
+                value={classDetails.subject_id}
                 // defaultValue='single'
-                onChange={e => setclassDetails({ ...classDetails, program_plan_id: e.target.value as string })}
+                onChange={e => setclassDetails({ ...classDetails, subject_id: e.target.value as string })}
               >
                 {subjects?.map((item, index) => (
                   <MenuItem value={item?.subject_id}>{item?.subject_name}</MenuItem>
@@ -148,8 +160,8 @@ const CreateClass: React.FC = () => {
               label='Class Link'
               fullWidth
               variant='outlined'
-              name='classlink'
-              value={classDetails.classlink}
+              name='classeLink'
+              value={classDetails.classeLink}
               onChange={handleInputChange}
               style={{ marginBottom: '1rem', marginTop: '1rem' }}
             />
