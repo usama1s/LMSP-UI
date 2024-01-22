@@ -137,6 +137,11 @@ const navigation = (): VerticalNavItemsType => {
         title: 'Student Grades',
         icon: Book,
         path: '/student-grades'
+      },
+      {
+        title: 'All Certificates',
+        icon: Book,
+        path: '/all-certificates'
       }
     ]
   } else if (user?.role == 1 && user?.admin_types.includes(3)) {

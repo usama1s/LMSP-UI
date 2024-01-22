@@ -116,13 +116,20 @@ const SubmittedAssignmentsPage: React.FC = () => {
   }
 
   const handleDownload = async path => {
-    const base64 = await getFile(path).then(r => {
-      return r?.base64File
-    })
+    const base = await getFile(path)
+    const indexOf4 = base.indexOf('4')
 
-    if (base64) {
+    var secondPart
+    if (indexOf4 !== -1) {
+      const firstPart = base.substring(0, indexOf4 + 1)
+      secondPart = base.substring(indexOf4 + 1)
+
+      console.log('First part:', firstPart)
+      console.log('Second part:', secondPart)
+    }
+    if (base) {
       const a = document.createElement('a')
-      a.href = `data:application/pdf;base64,${base64}`
+      a.href = `data:application/pdf;base64,${secondPart}`
       a.download = 'assignment.pdf'
       document.body.appendChild(a)
       a.click()

@@ -101,29 +101,25 @@ const StudentAssignmentPage: React.FC = () => {
   }
   const downloadQuestionFile = async () => {
     const path = assignmentQuestion?.assignment_file
-    // console.log('Questionnnnnnnnnnnnnn', questionFileBase64)
-    // downloadFile(questionFileBase64)
-    const base = await getFile(path).then(r => {
-      return r
-    })
-    console.log('BASEE', base)
+
+    const base = await getFile(path)
+    const indexOf4 = base.indexOf('4')
+
+    var secondPart
+    if (indexOf4 !== -1) {
+      const firstPart = base.substring(0, indexOf4 + 1)
+      secondPart = base.substring(indexOf4 + 1)
+
+      console.log('First part:', firstPart)
+      console.log('Second part:', secondPart)
+    }
     if (base) {
       const a = document.createElement('a')
-      a.href = `data:application/pdf;base64,${base}`
+      a.href = `data:application/pdf;base64,${secondPart}`
       a.download = 'assignment.pdf'
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
-      // console.log(base)
-
-      // const blob = dataURItoBlob(base)
-      // const url = URL.createObjectURL(blob)
-      // const a = document.createElement('a')
-      // a.href = url
-      // a.download = `${assignmentQuestion?.assignment_title}.pdf`
-      // document.body.appendChild(a)
-      // a.click()
-      // document.body.removeChild(a)
     }
   }
 

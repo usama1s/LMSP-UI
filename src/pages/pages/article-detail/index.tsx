@@ -10,15 +10,11 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout'
 import { Viewer } from '@react-pdf-viewer/core'
 
-// Import styles
 import '@react-pdf-viewer/core/lib/styles/index.css'
 import '@react-pdf-viewer/default-layout/lib/styles/index.css'
 import useAuth from 'src/@core/utils/useAuth'
 import { getFile } from 'src/@core/utils/general'
 
-// Import your styles or any other necessary components
-
-// Configure the PDF worker
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`
 
 interface DetailPageProps {
@@ -41,17 +37,36 @@ const DetailPage: React.FC = () => {
   const router = useRouter()
   const { id } = router.query as { id: string }
   const [info, setInfo] = useState<any>(null)
+  const [video, setVideo] = useState<any>(null)
+  const [infoImage, setInfoImage] = useState<any>(null)
 
   const [details, setDetails] = useState<Details | null>(null)
-
   useEffect(() => {
     const fetchDetails = async () => {
       console.log('id', id)
       await customApiCall('get', `/admin/get-item/${id}`).then(async r => {
         console.log('Article Inventoty', r)
+        var infoImage = await getFile(r?.image_1)
         var infoFile = await getFile(r.information_file)
+        var videoFile = await getFile(r.video_file)
+        // datavideo / quicktimebase64
+        setInfoImage(`data:image/png;base64,${infoImage}`)
+        const indexOf4Video = videoFile.indexOf('4')
 
-        setInfo(`data:application/pdf;base64,${infoFile}`)
+        var secondPartOfVideo
+        if (indexOf4Video !== -1) {
+          secondPartOfVideo = videoFile.substring(indexOf4Video + 1)
+        }
+        setVideo(`data:video/quicktime;base64,${secondPartOfVideo}`)
+
+        const indexOf4 = infoFile.indexOf('4')
+
+        var secondPart
+        if (indexOf4 !== -1) {
+          const firstPart = infoFile.substring(0, indexOf4 + 1)
+          secondPart = infoFile.substring(indexOf4 + 1)
+        }
+        setInfo(`data:application/pdf;base64,${secondPart}`)
 
         // Mock data - replace with your actual API call
         const mockData: Details = {
@@ -79,7 +94,7 @@ const DetailPage: React.FC = () => {
 
   const renderCarousel = () => {
     if (details && details.images && details.images.length > 0) {
-      return <img src={details.image} alt={`nonex`} style={{ width: '50%', height: '50%', margin: '0 25%' }} />
+      return <img src={infoImage} alt={`nonex`} style={{ width: '50%', height: '50%', margin: '0 25%' }} />
     }
 
     return <Typography>No images available</Typography>
@@ -92,7 +107,7 @@ const DetailPage: React.FC = () => {
           <Typography variant='h6' gutterBottom>
             Video
           </Typography>
-          <ReactPlayer url={details.video} width='100%' height='400px' controls />
+          <ReactPlayer url={video} width='100%' height='400px' controls />
         </Box>
       )
     }

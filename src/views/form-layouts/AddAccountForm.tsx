@@ -160,7 +160,7 @@ const AddAccountForm = ({ selectedUserToEdit }: any) => {
     var splitted = base64 as string
     setFormData({
       ...formData,
-      profileImage: splitted.split(',')[1]
+      profileImage: splitted
     })
 
     const reader = new FileReader()
@@ -295,7 +295,7 @@ const AddAccountForm = ({ selectedUserToEdit }: any) => {
               <Box>
                 <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
                   Upload Photo
-                  <input hidden type='file' onChange={onChange} accept='image/*' id='account-settings-upload-image' />
+                  <input hidden type='file' onChange={onChange} accept='image/jpg' id='account-settings-upload-image' />
                 </ButtonStyled>
                 <ResetButtonStyled
                   color='error'

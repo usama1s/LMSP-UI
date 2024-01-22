@@ -42,13 +42,12 @@ const UserDropdown = () => {
     if (user && user != undefined) {
       var loggedInUser = JSON.parse(user)
       setUser(loggedInUser)
-      getImage(loggedInUser?.profile_picture)
+      getImage(loggedInUser?.profile_image)
     }
   }, [])
 
   const getImage = async (file: any) => {
     var res = await getFile(file)
-    console.log('Image', file)
     setProfileImg(`data:image/png;base64,${res}`)
   }
   // ** Hooks

@@ -109,7 +109,7 @@ const AllAccountsTable = () => {
         role: item?.role,
         admin_types: item?.admin_type ? item?.admin_type : item?.role == 2 ? 6 : 7
       }))
-      // var selectedAccounts = []
+      var selectedAccounts = []
       // console.log('userr', loggedInUser)
       // if (loggedInUser?.role == 1 && loggedInUser?.admin_types?.includes(1)) {
       //   console.log('all', response)

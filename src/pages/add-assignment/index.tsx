@@ -76,10 +76,12 @@ const TeacherAssignmentPage: React.FC = () => {
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null
+    const fileToSend = await toBase64(file)
+    console.log(fileToSend)
     setPdfFile(file)
     setAssignmentDetails({
       ...assignmentDetails,
-      pdfFile: await toBase64(file)
+      pdfFile: fileToSend
     })
   }
   const ButtonStyled = styled(Button)<ButtonProps & { component?: ElementType; htmlFor?: string }>(({ theme }) => ({
