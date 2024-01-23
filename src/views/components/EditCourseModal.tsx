@@ -15,7 +15,7 @@ const EditModal = ({ selectedCourseToEdit, onClose, onUpdate }: any) => {
     <Dialog open={!!selectedCourseToEdit} onClose={onClose}>
       <DialogTitle>Edit User</DialogTitle>
       <DialogContent>
-        <CourseDetails courseToEdit={selectedCourseToEdit} />
+        <CourseDetails courseToEdit={selectedCourseToEdit} onUpdate={onUpdate} />
       </DialogContent>
     </Dialog>
   )

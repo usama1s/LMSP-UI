@@ -120,7 +120,7 @@ const ArticleInventoryTable = () => {
   }
 
   const downloadQRCode = async (id: any, title: any) => {
-    const qrCodeText = `http://192.168.1.8:3000/pages/article-detail/?id=${id}`
+    const qrCodeText = `http://192.168.0.100:3000/pages/article-detail/?id=${id}`
 
     QRCode?.toDataURL(
       qrCodeText,

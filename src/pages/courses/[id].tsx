@@ -45,7 +45,7 @@ const StudentDashboard = () => {
   const getCourseDetailByID = async (studentId: number) => {
     console.log('ID: ' + id + ', Student ID: ' + studentId)
     await customApiCall('get', `admin/getCourse/${id}/${studentId}`).then(r => {
-      console.log('COURSE DATA', r)
+      console.log('FINAL PAPERS', r?.modifiedQuiz?.quizes)
       setCourseData(r?.course)
       setAttendanceData(r?.subjectsWithAttendance)
       setFinalPapers(r?.modifiedPaper.papers)

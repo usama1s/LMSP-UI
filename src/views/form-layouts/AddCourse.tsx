@@ -70,7 +70,7 @@ const formats = [
   'video'
 ]
 
-const CourseDetails: React.FC = ({ courseToEdit }: any) => {
+const CourseDetails: React.FC = ({ courseToEdit, onUpdate }: any) => {
   const editorRef = useRef(null)
   const { customApiCall } = useAuth()
   const [courseData, setCourseData] = useState<CourseData>({
@@ -312,6 +312,7 @@ const CourseDetails: React.FC = ({ courseToEdit }: any) => {
           return
         }
         alert(r?.message)
+        onUpdate()
       })
     } else {
       await customApiCall('post', 'admin/addCourse', courseData)

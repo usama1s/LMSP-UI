@@ -86,8 +86,8 @@ const GradesComponent: React.FC = () => {
         name: 'Average',
         data: [
           averageMarks?.avgAssignmentMarks ? parseFloat(averageMarks.avgAssignmentMarks) : 0,
-          averageMarks?.avgQuizMarks ? parseFloat(averageMarks.avgQuizMarks) : 0,
-          averageMarks?.avgAttendance ? parseFloat(averageMarks.avgAttendance) : 0
+          averageMarks?.avgQuizMarks ? parseFloat(averageMarks.avgQuizMarks) : 0
+          // averageMarks?.avgAttendance ? parseFloat(averageMarks.avgAttendance) : 0
         ]
       }
     ]

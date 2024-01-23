@@ -35,6 +35,11 @@ const CourseMaterial = () => {
     // You can add logic to save the edited course
   }
 
+  const handleUpdateCourses = () => {
+    getAllCourses() // Reload courses
+    setEditModalOpen(false) // Close the modal
+    setEditingCourse(null) // Reset the editing course
+  }
   useEffect(() => {
     getAllCourses()
   }, [])
@@ -95,7 +100,8 @@ const CourseMaterial = () => {
                 <AccordionDetails>
                   {module.subjects.map(subject => (
                     <div key={subject.subject_name}>
-                      <Typography variant='h6'>{subject.subject_name}</Typography>
+                      <hr />
+                      <Typography variant='h4'>{subject.subject_name}</Typography>
                       {subject.teachers.map(teacher => (
                         <Typography key={teacher.instructor_id} variant='body1'>
                           Instructor: {teacher.instructor_name} (Section: {teacher.section})
@@ -128,6 +134,7 @@ const CourseMaterial = () => {
             setEditModalOpen(false)
             setEditingCourse(null)
           }}
+          onUpdate={handleUpdateCourses}
         />
       )}
     </div>
