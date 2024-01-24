@@ -45,13 +45,16 @@ const StudentDashboard = () => {
   const getCourseDetailByID = async (studentId: number) => {
     console.log('ID: ' + id + ', Student ID: ' + studentId)
     await customApiCall('get', `admin/getCourse/${id}/${studentId}`).then(r => {
-      console.log('FINAL PAPERS', r?.modifiedQuiz?.quizes)
+      console.log('FINAL PAPERS', r?.modifiedPaper?.papers)
       setCourseData(r?.course)
       setAttendanceData(r?.subjectsWithAttendance)
-      setFinalPapers(r?.modifiedPaper.papers)
-      setModifiedPaper(r?.modifiedPaper)
       setModifiedQuiz(r?.modifiedQuiz?.quizes)
       setAssignmentsObj(r?.assignmentsObj)
+    })
+
+    await customApiCall('get', `student/get-Papers/${studentId}/${id}`).then(r => {
+      console.log('FINAL PAPERS', r)
+      setFinalPapers(r)
     })
   }
 
@@ -148,11 +151,13 @@ const StudentDashboard = () => {
   }
 
   const handleStartPaper = paperId => {
-    const paperData = modifiedPaper.papers[paperId]
+    // const paperData = modifiedPaper.papers[paperId]
+    // const transformedData = transformPaperData(paperData)
+    // console.log('Transformed Data', transformedData.paper_questions)
 
-    const transformedData = transformPaperData(paperData)
-    console.log('Transformed Data', transformedData.paper_questions)
-    localStorage.setItem('paperData', JSON.stringify(transformedData.paper_questions))
+    const paperData = finalPapers.find(paper => paper.id == paperId)
+
+    localStorage.setItem('paperData', JSON.stringify(paperData?.questions))
     router.push(`/student-paper/${paperId}`)
   }
 
@@ -239,32 +244,28 @@ const StudentDashboard = () => {
         </TabPanel>
 
         <TabPanel sx={{ p: 10 }} value='FinalPaper'>
-          {Object.entries(finalPapers).map(([key, papers]) => (
-            <div key={key}>
-              {papers.map(paper => (
-                <Grid item xs={12} key={paper.subject_id}>
-                  <Paper elevation={3} style={{ padding: '16px' }} key={paper.subject_id}>
-                    <Typography variant='h4' gutterBottom>
-                      {paper.subject_name}
-                    </Typography>
-                    <Card>
-                      <CardContent>
-                        <Typography variant='h6'>{paper.title}</Typography>
-                        <Button
-                          variant='contained'
-                          color='primary'
-                          onClick={() => {
-                            handleStartPaper(paper.id)
-                          }}
-                        >
-                          Start Paper
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </Paper>
-                </Grid>
-              ))}
-            </div>
+          {finalPapers.map((item, index) => (
+            <Grid item xs={12} key={index}>
+              <Paper elevation={3} style={{ padding: '16px' }} key={item.id}>
+                <Typography variant='h4' gutterBottom>
+                  {item.subject_name}
+                </Typography>
+                <Card>
+                  <CardContent>
+                    <Typography variant='h6'>{item.title}</Typography>
+                    <Button
+                      variant='contained'
+                      color='primary'
+                      onClick={() => {
+                        handleStartPaper(item.id)
+                      }}
+                    >
+                      Start Paper
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Paper>
+            </Grid>
           ))}
         </TabPanel>
 
@@ -273,7 +274,7 @@ const StudentDashboard = () => {
             <Grid item xs={12} key={quizId}>
               <Paper elevation={3} style={{ padding: '16px' }}>
                 <Typography variant='h4' gutterBottom>
-                  Subject Name: {questions[0].subject_id}
+                  Subject Name: {questions[0].subject_name}
                 </Typography>
                 <Card>
                   <CardContent>

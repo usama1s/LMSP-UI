@@ -206,7 +206,7 @@ const SubmittedAssignmentsPage: React.FC = () => {
                     onClick={() => {
                       // Implement your logic to download the submitted file
                       console.log('Download submitted file:', student.submitted_file)
-                      handleDownload(student.submitted_file)
+                      // handleDownload(student.submitted_file)
                     }}
                   >
                     Download
