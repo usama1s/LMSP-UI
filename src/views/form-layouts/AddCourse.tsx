@@ -467,18 +467,18 @@ const CourseDetails: React.FC = ({ courseToEdit, onUpdate }: any) => {
             {module.subjects.map((subject, subjectIndex) => (
               <Box key={subjectIndex} mt={3}>
                 <Box textAlign='center' mb={2}>
-                  <Typography variant='h5'>Subject {subjectIndex + 1}</Typography>
+                  <Typography variant='h5'>Topic {subjectIndex + 1}</Typography>
                 </Box>
                 <DeleteButton
                   variant='contained'
                   color='error'
                   onClick={() => handleDeleteSubject(moduleIndex, subjectIndex)}
                 >
-                  Delete Subject
+                  Delete Topic
                 </DeleteButton>
                 <TextField
                   fullWidth
-                  label={`Subject ${subjectIndex + 1} Name`}
+                  label={`Topic ${subjectIndex + 1} Name`}
                   variant='outlined'
                   value={subject.subject_name}
                   onChange={e => handleSubjectChange(moduleIndex, subjectIndex, e.target.value)}
@@ -543,7 +543,7 @@ const CourseDetails: React.FC = ({ courseToEdit, onUpdate }: any) => {
                   <Box key={topicIndex} display='flex' alignItems='center' mt={4} ml={30}>
                     <TextField
                       fullWidth
-                      label={`Topic ${moduleIndex + 1}.${subjectIndex + 1}.${topicIndex + 1} Name`}
+                      label={`Sub Topic ${moduleIndex + 1}.${subjectIndex + 1}.${topicIndex + 1} Name`}
                       variant='outlined'
                       value={topic.topic_name}
                       onChange={e => handleTopicChange(moduleIndex, subjectIndex, topicIndex, e.target.value)}
@@ -572,7 +572,7 @@ const CourseDetails: React.FC = ({ courseToEdit, onUpdate }: any) => {
                       color='error'
                       onClick={() => handleDeleteTopic(moduleIndex, subjectIndex, topicIndex)}
                     >
-                      Delete Topic
+                      Delete Sub Topic
                     </DeleteButton>
                   </Box>
                 ))}
@@ -582,7 +582,7 @@ const CourseDetails: React.FC = ({ courseToEdit, onUpdate }: any) => {
                   sx={{ marginTop: 2, marginRight: 3.5 }}
                   onClick={() => handleAddTopic(moduleIndex, subjectIndex)}
                 >
-                  Add Topic
+                  Add Sub Topic
                 </ButtonStyled>
               </Box>
             ))}
@@ -592,7 +592,7 @@ const CourseDetails: React.FC = ({ courseToEdit, onUpdate }: any) => {
               sx={{ marginTop: 2, marginRight: 3.5 }}
               onClick={() => handleAddSubject(moduleIndex)}
             >
-              Add Subject
+              Add Topic
             </ButtonStyled>
             {moduleIndex < courseData.modules.length - 1 && (
               <Box mb={10} mt={15}>

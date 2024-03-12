@@ -16,15 +16,15 @@ import TableStickyHeader from 'src/views/tables/TableStickyHeader'
 const MUITable = () => {
   return (
     <Grid container spacing={6}>
-      {/* <Grid item xs={12}>
+      <Grid item xs={12}>
         <Typography variant='h5'>
           <Link href='https://mui.com/components/tables/' target='_blank'>
             MUI Tables
           </Link>
         </Typography>
         <Typography variant='body2'>Tables display sets of data. They can be fully customized</Typography>
-      </Grid> */}
-      {/* <Grid item xs={12}>
+      </Grid> 
+      <Grid item xs={12}>
         <Card>
           <CardHeader title='Basic Table' titleTypographyProps={{ variant: 'h6' }} />
           <TableBasic />
@@ -35,7 +35,7 @@ const MUITable = () => {
           <CardHeader title='Dense Table' titleTypographyProps={{ variant: 'h6' }} />
           <TableDense />
         </Card>
-      </Grid> */}
+      </Grid>
 
       {/*  */}
       {/*  */}
@@ -47,7 +47,7 @@ const MUITable = () => {
       </Grid>
       {/*  */}
       {/*  */}
-      {/* <Grid item xs={12}>
+      <Grid item xs={12}>
         <Card>
           <CardHeader title='Collapsible Table' titleTypographyProps={{ variant: 'h6' }} />
           <TableCollapsible />
@@ -64,7 +64,7 @@ const MUITable = () => {
           <CardHeader title='Customized Table' titleTypographyProps={{ variant: 'h6' }} />
           <TableCustomized />
         </Card>
-      </Grid> */}
+      </Grid>
     </Grid>
   )
 }

@@ -19,6 +19,8 @@ const ContactUsMessagesPage = () => {
   const fetchQuestions = async () => {
     await customApiCall('get', `admin/getContactUs`).then(r => {
       setContactMessages(r?.contactUs)
+    }).catch(err => {
+      console.log(err)
     })
   }
 

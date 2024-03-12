@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, SyntheticEvent, Fragment, ReactNode } from 'react'
+import { useState, SyntheticEvent, Fragment, ReactNode, useEffect, useLayoutEffect } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -8,16 +8,19 @@ import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import { styled, Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
+import Badge from '@mui/material/Badge'
 import MuiMenu, { MenuProps } from '@mui/material/Menu'
 import MuiAvatar, { AvatarProps } from '@mui/material/Avatar'
 import MuiMenuItem, { MenuItemProps } from '@mui/material/MenuItem'
 import Typography, { TypographyProps } from '@mui/material/Typography'
+
 
 // ** Icons Imports
 import BellOutline from 'mdi-material-ui/BellOutline'
 
 // ** Third Party Components
 import PerfectScrollbarComponent from 'react-perfect-scrollbar'
+import useAuth from 'src/@core/utils/useAuth'
 
 // ** Styled Menu component
 const Menu = styled(MuiMenu)<MenuProps>(({ theme }) => ({
@@ -85,6 +88,19 @@ const NotificationDropdown = () => {
 
   // ** Hook
   const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'))
+  const [notifications,setNotifications]=useState([])
+  const{customApiCall}=useAuth()
+  const [user, setUser] = useState(null)
+  useEffect(() => {
+    var loggedInUser = localStorage.getItem('user')
+    if (loggedInUser) {
+      console.log('user', loggedInUser)
+      var u = JSON.parse(loggedInUser)
+      setUser(u)
+    } else {
+      router.push('/login')
+    }
+  }, [])
 
   const handleDropdownOpen = (event: SyntheticEvent) => {
     setAnchorEl(event.currentTarget)
@@ -104,10 +120,22 @@ const NotificationDropdown = () => {
     }
   }
 
+  useEffect( ()=> {
+    customApiCall('get', `student/get-notifications/`)
+         .then(r => {
+           console.log(r)
+          setNotifications(r) 
+         })
+         .catch(err => {
+           console.log(err)
+         })},[])
+
   return (
     <Fragment>
+      
       <IconButton color='inherit' aria-haspopup='true' onClick={handleDropdownOpen} aria-controls='customized-menu'>
-        <BellOutline />
+      <Badge badgeContent={user?.role==3?notifications.length:0} color='error'>
+        <BellOutline /></Badge>
       </IconButton>
       <Menu
         anchorEl={anchorEl}
@@ -119,28 +147,28 @@ const NotificationDropdown = () => {
         <MenuItem disableRipple>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
             <Typography sx={{ fontWeight: 600 }}>Notifications</Typography>
-            <Chip
+            {/* <Chip
               size='small'
               label='8 New'
               color='primary'
               sx={{ height: 20, fontSize: '0.75rem', fontWeight: 500, borderRadius: '10px' }}
-            />
+            /> */}
           </Box>
         </MenuItem>
         <ScrollWrapper>
-          <MenuItem onClick={handleDropdownClose}>
+          {user?.role == 3?notifications.map((notification)=><MenuItem onClick={handleDropdownClose}>
             <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
-              <Avatar alt='Flora' src='/images/avatars/4.png' />
+              <Avatar alt='Flora' src='/images/subject.png' />
               <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
-                <MenuItemTitle>Congratulation Flora! 🎉</MenuItemTitle>
-                <MenuItemSubtitle variant='body2'>Won the monthly best seller badge</MenuItemSubtitle>
+                <MenuItemTitle>{notification?.subject_name}</MenuItemTitle>
+                <MenuItemSubtitle variant='body2'>{notification?.description}</MenuItemSubtitle>
               </Box>
               <Typography variant='caption' sx={{ color: 'text.disabled' }}>
                 Today
               </Typography>
             </Box>
-          </MenuItem>
-          <MenuItem onClick={handleDropdownClose}>
+          </MenuItem>):null}
+          {/* <MenuItem onClick={handleDropdownClose}>
             <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
               <Avatar sx={{ color: 'common.white', backgroundColor: 'primary.main' }}>VU</Avatar>
               <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
@@ -199,7 +227,7 @@ const NotificationDropdown = () => {
                 27 Dec
               </Typography>
             </Box>
-          </MenuItem>
+          </MenuItem> */}
         </ScrollWrapper>
         <MenuItem
           disableRipple

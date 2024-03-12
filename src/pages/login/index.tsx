@@ -8,7 +8,6 @@ import { useRouter } from 'next/router'
 // ** MUI Components
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
 import TextField from '@mui/material/TextField'
 import InputLabel from '@mui/material/InputLabel'
 import Typography from '@mui/material/Typography'
@@ -93,6 +92,12 @@ const LoginPage = () => {
     event.preventDefault()
   }
 
+  const LinkStyled = styled('a')(({ theme }) => ({
+    fontSize: '0.875rem',
+    textDecoration: 'none',
+    color: theme.palette.primary.main
+  }))
+
   useEffect(() => {
     setLoading(true)
     var user = localStorage.getItem('user')
@@ -157,7 +162,8 @@ const LoginPage = () => {
                 fontSize: '1.5rem !important'
               }}
             >
-              {themeConfig.templateName}
+              CASM
+              {/* {themeConfig.templateName} */}
             </Typography>
           </Box>
           <Box sx={{ mb: 6 }}>
@@ -214,6 +220,16 @@ const LoginPage = () => {
               Login
             </Button>
           </form>
+          <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Typography variant='body2' sx={{ marginRight: 2 }}>
+              Non Registered Student?
+            </Typography>
+            <Typography variant='body2'>
+              <Link passHref href='/register'>
+                <LinkStyled>Create an account</LinkStyled>
+              </Link>
+            </Typography>
+          </Box>
         </CardContent>
       </Card>
       <FooterIllustrationsV1 />

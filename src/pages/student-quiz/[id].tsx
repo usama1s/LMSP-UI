@@ -1,9 +1,10 @@
 // pages/studentQuiz.tsx
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Container, Typography, Paper, Grid, Radio, Button } from '@mui/material'
 import { useRouter } from 'next/router'
 import useAuth from 'src/@core/utils/useAuth'
 import SuccessModal from 'src/views/components/SuccessModel'
+import Countdown from 'react-countdown'
 
 interface Question {
   question: string
@@ -23,6 +24,10 @@ const StudentQuizPage: React.FC = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [totalMarks, setTotalMarks] = useState(0)
   const [obtainedMarks, setObtainedMarks] = useState(0)
+  const [quizTime, setQuizTime] = useState({
+    minutes: Math.floor(localStorage.getItem('quizTime')?.substring(0, 2) * 60),
+    seconds: localStorage.getItem('quizTime')?.substring(3)
+  })
 
   const handleOptionChange = (questionIndex: number, optionIndex: number) => {
     const updatedQuestions = [...questions]
@@ -46,11 +51,12 @@ const StudentQuizPage: React.FC = () => {
       return 'F'
     }
   }
+  console.log(questions)
 
   const handleSubmit = async () => {
     let obtained = 0
     questions.forEach(q => {
-      if (q.selectedOption === q.correctOption) {
+      if (q.selectedOption === q.correctOption && q.correctOption !== null) {
         obtained++
         q.isCorrect = true
       } else {
@@ -72,10 +78,15 @@ const StudentQuizPage: React.FC = () => {
       percentage: (obtainedMarks / totalMarks) * 100
     }
 
-    await customApiCall('post', 'student/submit-quiz', dataToSend).then(() => {
-      setShowSuccessModal(true)
-      localStorage.removeItem('quizData')
-    })
+    await customApiCall('post', 'student/submit-quiz', dataToSend)
+      .then(() => {
+        setShowSuccessModal(true)
+        localStorage.removeItem('quizData')
+      })
+      .catch(err => {
+        console.log(err)
+        alert(err)
+      })
   }
 
   const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -138,6 +149,7 @@ const StudentQuizPage: React.FC = () => {
       setUser(loggedInUser)
     }
     var retrievedDataJSON = localStorage.getItem('quizData')
+    console.log(localStorage.getItem('quizData'))
     var retrievedData = JSON.parse(retrievedDataJSON)
     const updatedQuestions = retrievedData.map((question: Question) => ({
       ...question,
@@ -146,8 +158,42 @@ const StudentQuizPage: React.FC = () => {
     setQuestions(updatedQuestions)
   }, [])
 
+  const countdownQuizTime = useMemo(
+    () => Date.now() + quizTime?.minutes * 1000 + quizTime?.seconds * 1000,
+
+    [quizTime]
+  )
+
   return (
     <Container maxWidth='lg' style={{ marginTop: '2rem' }}>
+      <Typography
+        variant='h4'
+        gutterBottom
+        align='center'
+        style={{
+          position: 'fixed',
+          padding: '10px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #ccc',
+          borderRadius: '5px',
+          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+          left: '60%' /* Center horizontally */,
+          top: '5%',
+          transform: 'translateX(-50%)' /* Center horizontally */
+        }}
+      >
+        Time Allowed:{' '}
+        <Countdown
+          date={countdownQuizTime}
+          onComplete={handleSubmit}
+          renderer={({ minutes, seconds }) => (
+            <span style={{ color: 'red' }}>
+              0{minutes}:{seconds > 9 ? '' : 0}
+              {seconds}
+            </span>
+          )}
+        />{' '}
+      </Typography>
       <Typography variant='h4' gutterBottom>
         Student Quiz
       </Typography>

@@ -123,6 +123,7 @@ const AddProgramForm = ({ editedProgram, setEditModalOpen, setAllPrograms }: any
     await customApiCall('get', 'admin/get-all-courses').then(r => {
       console.log('courses', r)
       setCourses(r)
+    }).catch((err)=>{console.log(err)
     })
   }
   const getAllInstructors = async () => {

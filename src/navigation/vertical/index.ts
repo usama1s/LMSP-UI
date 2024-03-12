@@ -70,6 +70,11 @@ const navigation = (): VerticalNavItemsType => {
         title: 'Courses',
         icon: Message,
         path: '/courses'
+      },
+      {
+        title: 'Student Feedback',
+        icon: Message,
+        path: '/student-feedback'
       }
     ]
   } else if (user?.role == 1 && user?.admin_types.includes(1)) {
@@ -124,6 +129,11 @@ const navigation = (): VerticalNavItemsType => {
         path: '/course-details'
       },
       {
+        title: 'Course Feedback',
+        icon: Book,
+        path: '/course-feedback'
+      },
+      {
         title: 'Paper',
         icon: Book,
         path: '/admin-paper'
@@ -139,9 +149,19 @@ const navigation = (): VerticalNavItemsType => {
         path: '/student-grades'
       },
       {
+        title: 'Course Grades',
+        icon: Book,
+        path: '/course-student-grades'
+      },
+      {
         title: 'All Certificates',
         icon: Book,
         path: '/all-certificates'
+      },
+      {
+        title: 'Tables',
+        icon: Book,
+        path: '/tables'
       }
     ]
   } else if (user?.role == 1 && user?.admin_types.includes(3)) {

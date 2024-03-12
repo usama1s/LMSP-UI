@@ -58,6 +58,8 @@ const SubmittedAssignmentsPage: React.FC = () => {
     customApiCall('get', `instructor/get-submitted-assignments/${user?.instructor_id}/${selectedSubject}`).then(r => {
       console.log('Submitted Assignments', r)
       setAssignments(r?.allSubmittedAssignments?.assignments)
+    }).catch((err)=>{console.log(err)
+    alert("Something Unexpected Happened")
     })
   }
 

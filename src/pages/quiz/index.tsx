@@ -25,6 +25,9 @@ import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import 'react-datepicker/dist/react-datepicker.css'
+import { TimePicker } from '@mui/x-date-pickers/TimePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 interface Question {
   question: string
   options: string[]
@@ -35,6 +38,7 @@ interface Question {
 const QuizPage: React.FC = () => {
   const { customApiCall } = useAuth()
   const [quizDaate, setQuizDate] = useState<Date | null>(null)
+  const [quizTime,setQuizTime]=useState<Date | null>(null)
   const [questions, setQuestions] = useState<Question[]>([
     // { question: '', options: ['', '', '', ''], correctOption: null, image: '/images/avatars/placeholder.png' }
   ])
@@ -104,6 +108,7 @@ const QuizPage: React.FC = () => {
 
   const handleCancel = () => {
     setQuizDate(null)
+    setQuizTime(null)
     setProgramPlanId(null)
     setQuestions([])
   }
@@ -116,6 +121,7 @@ const QuizPage: React.FC = () => {
       const requestData = {
         subject_id: programPlanId,
         quiz_date: quizDaate.toISOString().split('T')[0],
+        quiz_time:quizTime?.$d?.toLocaleTimeString()?.substring(2,7),
         quiz_questions: questions,
         instructor_id: user?.instructor_id,
         section: selectedSubject.section
@@ -161,7 +167,6 @@ const QuizPage: React.FC = () => {
   const CustomInput = forwardRef((props: TextFieldProps, ref) => {
     return <TextField fullWidth {...props} inputRef={ref} autoComplete='off' style={{ backgroundColor: 'white' }} />
   })
-
   return (
     <DatePickerWrapper>
       <Container maxWidth='lg' style={{ marginTop: '2rem', backgroundColor: 'white', padding: 30, borderRadius: 10 }}>
@@ -181,6 +186,18 @@ const QuizPage: React.FC = () => {
             }}
           />
         </Grid>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Grid item xs={12} sm={6} mt={3}>
+        <TimePicker
+       
+         value={quizTime}
+         label={'Quiz Time'} 
+          ampm={false}
+          format='mm:ss'
+          onChange={(newTime:Date | null)=>setQuizTime(newTime)}
+        />
+        </Grid>
+        </LocalizationProvider>
         <Grid item xs={12} sm={6} mt={3}>
           <FormControl fullWidth style={{ backgroundColor: 'white' }}>
             <InputLabel>Subject</InputLabel>

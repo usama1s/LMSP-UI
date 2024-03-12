@@ -14,6 +14,7 @@ import {
 import html2canvas from 'html2canvas'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import useAuth from 'src/@core/utils/useAuth'
+import certificate from '../../../public/images/certificate.jpg'
 const theme = createTheme()
 
 const CertificateGenerator = () => {
@@ -25,7 +26,8 @@ const CertificateGenerator = () => {
 
   const [student, setStudent] = useState('')
   const [title, setTitle] = useState('')
-  const [selectedDate, setSelectedDate] = useState(new Date())
+  const [selectedDateFrom, setSelectedDateFrom] = useState(new Date())
+  const [selectedDateTo, setSelectedDateTo] = useState(new Date())
   const [showPreview, setShowPreview] = useState(false)
   const [user, setUser] = useState(null)
   const getStudentsByCourseId = async (courseId: number) => {
@@ -74,7 +76,9 @@ const CertificateGenerator = () => {
         course_id: course,
         student_id: student,
         title: title,
-        date: selectedDate.toDateString(),
+        date_from: selectedDateFrom.toDateString(),
+        date_to: selectedDateTo.toDateString(),
+        issued_date: selectedDateTo.toDateString(),
         issued_by: user?.admin_id
       }).then(r => {
         alert(r?.message)
@@ -86,31 +90,128 @@ const CertificateGenerator = () => {
     }
   }
 
-  function CertificatePreview({ name, course, date, title }) {
+  function CertificatePreview({ name, course, dateFrom, dateTo, title }) {
+    const issuedDate = new Date()
     return (
-      <div className='generator'>
-        <Icon />
-        <p className='byline'>{title}</p>
-
-        <div className='content'>
-          <p>Awarded to</p>
-          <h1>{name}</h1>
-          <p>for completing:</p>
-          <h2>{course}</h2>
+      <div style={{ position: 'relative', width: '100%', height: 'auto', display: 'flex' }}>
+        <img src='/images/certificate.jpg' alt='Certificate' style={{ width: '100%', height: 'auto' }} />
+        <div
+          style={{
+            position: 'absolute',
+            top: '49%',
+            left: '55.5%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            color: 'black',
+            fontSize: '24px'
+          }}
+        >
+          {name}
         </div>
-
-        <p className='issuedBy'>
-          Issued by{' '}
-          <span className='bold'>
-            {user?.first_name ? user?.first_name : '' + ' ' + user?.last_name ? user?.last_name : ''}
-          </span>
-        </p>
-        {date && (
-          <p className='date'>
-            Issued on <span className='bold'>{date}</span>
-          </p>
-        )}
+        <div
+          style={{
+            position: 'absolute',
+            top: '59%',
+            left: '55.5%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            fontWeight: 'bold',
+            color: 'black',
+            fontSize: '22px'
+          }}
+        >
+          {course}
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            top: '72%',
+            left: '48%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            color: 'black',
+            fontSize: '14px'
+          }}
+        >
+          {dateFrom.substring(4)}
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            top: '72%',
+            left: '65%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            color: 'black',
+            fontSize: '14px'
+          }}
+        >
+          {dateTo.substring(4)}
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            top: '49%',
+            left: '55.5%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            color: 'black',
+            fontSize: '24px'
+          }}
+        >
+          {name}
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            top: '81.5%',
+            left: '48%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            color: 'black',
+            fontSize: '14px'
+          }}
+        >
+          {issuedDate.toDateString().substring(10, 7)}
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            top: '81.3%',
+            left: '65%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            color: 'black',
+            fontSize: '14px'
+          }}
+        >
+          {issuedDate.toDateString().substring(3, 8)}
+        </div>
       </div>
+
+      // <div className='generator'>
+      //   <img src={certificate} alt=''></img>
+      //   <p className='byline'>{title}</p>
+
+      //   <div className='content'>
+      //     <p>Awarded to</p>
+      //     <h1>{name}</h1>
+      //     <p>for completing:</p>
+      //     <h2>{course}</h2>
+      //   </div>
+
+      //   <p className='issuedBy'>
+      //     Issued by{' '}
+      //     <span className='bold'>
+      //       {user?.first_name ? user?.first_name : '' + ' ' + user?.last_name ? user?.last_name : ''}
+      //     </span>
+      //   </p>
+      //   {date && (
+      //     <p className='date'>
+      //       Issued on <span className='bold'>{date}</span>
+      //     </p>
+      //   )}
+      // </div>
     )
   }
 
@@ -192,10 +293,22 @@ const CertificateGenerator = () => {
             <Grid item xs={6}>
               <TextField
                 fullWidth
-                label='Select Date'
+                label='Select Date From'
                 type='date'
-                value={selectedDate.toISOString().split('T')[0]}
-                onChange={e => setSelectedDate(new Date(e.target.value))}
+                value={selectedDateFrom.toISOString().split('T')[0]}
+                onChange={e => setSelectedDateFrom(new Date(e.target.value))}
+                InputLabelProps={{
+                  shrink: true
+                }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                fullWidth
+                label='Select Date To'
+                type='date'
+                value={selectedDateTo.toISOString().split('T')[0]}
+                onChange={e => setSelectedDateTo(new Date(e.target.value))}
                 InputLabelProps={{
                   shrink: true
                 }}
@@ -229,7 +342,8 @@ const CertificateGenerator = () => {
                 students?.find(s => s.student_id === student)?.last_name
               }
               course={courses.find(c => c.course_id === course)?.course_name}
-              date={selectedDate.toDateString()}
+              dateFrom={selectedDateFrom.toDateString()}
+              dateTo={selectedDateTo.toDateString()}
             />
           </div>
         )}

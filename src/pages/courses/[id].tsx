@@ -21,6 +21,7 @@ import { useRouter } from 'next/router'
 import AttendanceComponent from '../attendance-details'
 import GradesComponent from 'src/views/components/QuizAndAssignmentComponent'
 import StudentAssignmentPage from '../submit-assignment'
+import { ToastContainer, toast } from 'react-toastify';
 
 const StudentDashboard = () => {
   const router = useRouter()
@@ -32,6 +33,7 @@ const StudentDashboard = () => {
   const [modifiedQuiz, setModifiedQuiz] = useState({})
   const [assignmentsObj, setAssignmentsObj] = useState([])
   const [scheduledClasses, setScheduledClasses] = useState([])
+  const [notificatio,setNotification]=useState([])
 
   const [attendanceData, setAttendanceData] = useState<any>(null)
 
@@ -50,8 +52,9 @@ const StudentDashboard = () => {
       setAttendanceData(r?.subjectsWithAttendance)
       setModifiedQuiz(r?.modifiedQuiz?.quizes)
       setAssignmentsObj(r?.assignmentsObj)
-    })
+      console.log(r?.modifiedQuiz?.quizes)
 
+    })
     await customApiCall('get', `student/get-Papers/${studentId}/${id}`).then(r => {
       console.log('FINAL PAPERS', r)
       setFinalPapers(r)
@@ -74,7 +77,6 @@ const StudentDashboard = () => {
       getScheduledClasses(loggedInUser?.student_id)
     }
   }, [])
-  useEffect(() => {}, [])
   const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
     [theme.breakpoints.down('md')]: {
       minWidth: 100
@@ -101,6 +103,7 @@ const StudentDashboard = () => {
       instructor_id: quizData[0].instructor_id,
       section: quizData[0].section,
       quiz_date: quizData[0].quiz_date,
+      quiz_time:quizData[0].quiz_time,
       quiz_questions: []
     }
 
@@ -146,6 +149,7 @@ const StudentDashboard = () => {
 
     const transformedData = transformQuizData(quizData)
     console.log('Transformed Data', transformedData.quiz_questions)
+    localStorage.setItem('quizTime',transformedData.quiz_time)
     localStorage.setItem('quizData', JSON.stringify(transformedData.quiz_questions))
     router.push(`/student-quiz/${quizId}`)
   }
@@ -156,7 +160,7 @@ const StudentDashboard = () => {
     // console.log('Transformed Data', transformedData.paper_questions)
 
     const paperData = finalPapers.find(paper => paper.id == paperId)
-
+    localStorage.setItem('paperTime',paperData?.paper_time)
     localStorage.setItem('paperData', JSON.stringify(paperData?.questions))
     router.push(`/student-paper/${paperId}`)
   }
@@ -172,7 +176,10 @@ const StudentDashboard = () => {
     return new Date(classTime).toLocaleString('en-US', options)
   }
 
+
   return (
+    <>
+   
     <Card>
       <TabContext value={value}>
         <TabListWrapper onChange={handleChange} aria-label='course-tabs' variant='scrollable'>
@@ -335,7 +342,7 @@ const StudentDashboard = () => {
           ))}
         </TabPanel>
       </TabContext>
-    </Card>
+    </Card></>
   )
 }
 

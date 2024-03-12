@@ -129,7 +129,7 @@ const CreateClass: React.FC = () => {
     await customApiCall('get', `instructor/${instructorId}/subjects`).then(r => {
       console.log('subjects', r)
       setSubjects(r?.subjects)
-    })
+    }).catch((err)=>console.log(err))
   }
 
   useEffect(() => {

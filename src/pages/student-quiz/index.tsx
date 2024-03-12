@@ -18,7 +18,10 @@ const StudentQuizPage: React.FC = () => {
 
   const getQuizes = async userId => {
     await customApiCall('get', `student/get-quiz/${userId}/${id}`).then(r => {
+      console.log(r?.quizData)
       setQuizes(r?.quizData)
+    }).catch(err => {
+      console.log(err)
     })
   }
 
@@ -38,8 +41,9 @@ const StudentQuizPage: React.FC = () => {
   return (
     <Container style={{ marginTop: '2rem', height: '100vh' }}>
       <Typography variant='h4' gutterBottom>
-        Student Quiz
+        Student Quiz   
       </Typography>
+
 
       <Grid container spacing={3}>
         {Object.keys(quizes).map((quiz, index) => (

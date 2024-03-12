@@ -11,7 +11,8 @@ import {
   Radio,
   RadioGroup,
   ButtonProps,
-  TextFieldProps
+  TextFieldProps,
+
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import styled from '@emotion/styled'
@@ -23,6 +24,9 @@ import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+// import TimePicker from 'react-time-picker'
+
 import 'react-datepicker/dist/react-datepicker.css'
 interface Question {
   question: string
@@ -34,6 +38,7 @@ interface Question {
 const InstructorPage: React.FC = () => {
   const { customApiCall } = useAuth()
   const [quizDaate, setQuizDate] = useState<Date | null>(null)
+  const [quizTime,setQuizTime]=useState<Date | null>(null)
   const [questions, setQuestions] = useState<Question[]>([
     // { question: '', options: ['', '', '', ''], correctOption: null, image: '/images/avatars/placeholder.png' }
   ])

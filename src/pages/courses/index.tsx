@@ -39,6 +39,11 @@ const Courses: React.FC = () => {
       // setCourseData([{ id: 25, courseName: r?.course?.course_name }])
     })
   }
+
+
+
+ 
+  
   useEffect(() => {
     var user = localStorage.getItem('user')
 
@@ -50,7 +55,10 @@ const Courses: React.FC = () => {
   }, [selectedProgram, filterOption])
 
   return (
+    <>
+
     <Card>
+
       <div style={{ margin: 20 }}>
         <div>
           <Typography variant='h6'>Courses</Typography>
@@ -68,6 +76,8 @@ const Courses: React.FC = () => {
         </div>
       </div>
     </Card>
+
+    </>
   )
 }
 

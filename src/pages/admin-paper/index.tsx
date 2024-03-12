@@ -20,6 +20,9 @@ import {
   TextField
 } from '@mui/material'
 import useAuth from 'src/@core/utils/useAuth'
+import { TimePicker } from '@mui/x-date-pickers/TimePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 interface Question {
   qid: number
@@ -177,6 +180,7 @@ const AdminPage: React.FC = () => {
       title: title,
       paper_questions: selectedQuestions,
       paper_date: selectedDate.toDateString(),
+      paper_time:paperTime.$d.toLocaleTimeString().substring(2,7),
       subject_id: SubjectId,
       admin_id: user?.admin_id,
       section: ''
@@ -192,6 +196,7 @@ const AdminPage: React.FC = () => {
           setTitle('')
           setSelectedQuestions([])
           setSelectedDate(new Date())
+          setPaperTime()
           setSubjectId(null)
           setPapers([])
         }
@@ -205,6 +210,7 @@ const AdminPage: React.FC = () => {
   const [subjects, setSubjects] = useState([])
   const [papers, setPapers] = useState([])
   const [selectedDate, setSelectedDate] = useState(new Date())
+  const [paperTime,setPaperTime]=useState<Date | null>(null)
   const [title, setTitle] = useState('')
 
   const [user, setUser] = useState(null)
@@ -228,6 +234,8 @@ const AdminPage: React.FC = () => {
     await customApiCall('get', `instructor/subjects`).then(r => {
       console.log('subjcts', r)
       setSubjects(r?.subjects)
+    }).catch(err => {
+      console.log(err)
     })
   }
 
@@ -266,6 +274,19 @@ const AdminPage: React.FC = () => {
           }}
         />
       </Grid>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Grid item xs={12} sm={6} mt={3}>
+        <TimePicker
+       
+        //  value={quizTime}
+         label={'Paper Time'} 
+          ampm={false}
+          format='mm:ss'
+          onChange={(newTime:Date | null)=>setPaperTime(newTime)}
+          
+        />
+        </Grid>
+        </LocalizationProvider>
       <Grid item xs={12} mt={6}>
         <TextField fullWidth label='Title' value={title} onChange={e => setTitle(e.target.value)} />
       </Grid>

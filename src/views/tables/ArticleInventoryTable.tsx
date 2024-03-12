@@ -116,7 +116,7 @@ const ArticleInventoryTable = () => {
           createData(item?.inventory_id, item?.title, item?.make, item?.model, item?.expiry, item?.induction)
         ])
       })
-    })
+    }).catch((err)=>console.log(err))
   }
 
   const downloadQRCode = async (id: any, title: any) => {

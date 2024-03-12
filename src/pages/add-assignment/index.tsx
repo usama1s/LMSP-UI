@@ -32,6 +32,7 @@ const TeacherAssignmentPage: React.FC = () => {
     dueDate: '',
     pdfFile: null as string | null,
     instructions: '',
+    total_marks:'',
     program_plan_id: ''
   })
 
@@ -49,6 +50,8 @@ const TeacherAssignmentPage: React.FC = () => {
   const getAllsubjects = async instructorId => {
     await customApiCall('get', `instructor/${instructorId}/subjects`).then(r => {
       setSubjects(r?.subjects)
+    }).catch(err => {
+      console.log(err)
     })
   }
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,6 +121,7 @@ const TeacherAssignmentPage: React.FC = () => {
         assignment_date: assignmentDetails.dueDate,
         assignment_file: assignmentDetails.pdfFile,
         assignment_instruction: assignmentDetails.instructions,
+        assignment_total_marks:assignmentDetails.total_marks,
         assignment_title: assignmentDetails.title,
         instructor_id: user?.instructor_id
       }
@@ -128,6 +132,7 @@ const TeacherAssignmentPage: React.FC = () => {
           dueDate: '',
           pdfFile: null as string | null,
           instructions: '',
+          total_marks:'',
           program_plan_id: ''
         })
         setPdfFile(null)
@@ -150,7 +155,7 @@ const TeacherAssignmentPage: React.FC = () => {
             <InputLabel>Subject</InputLabel>
             <Select
               label='Program Plan'
-              value={assignmentDetails.subject_id}
+              value={assignmentDetails.program_plan_id}
               // defaultValue='single'
               onChange={e => setAssignmentDetails({ ...assignmentDetails, program_plan_id: e.target.value as string })}
             >
@@ -178,6 +183,17 @@ const TeacherAssignmentPage: React.FC = () => {
             onChange={handleInputChange}
             multiline
             style={{ marginBottom: '1rem' }}
+          />
+                    <TextField
+            label='Total Marks'
+            fullWidth
+            variant='outlined'
+            name='total_marks'
+            value={assignmentDetails.total_marks}
+            onChange={handleInputChange}
+            multiline
+            style={{ marginBottom: '1rem' }}
+            required
           />
 
           <DatePicker
